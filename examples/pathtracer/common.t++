@@ -1,0 +1,6 @@
+def infinity = 1 / 0
+def pi = 3.1415926535897932385
+
+def degrees_to_radians(degrees) = degrees * pi / 180
+
+def random(min, max) = min + (max - min) * random()

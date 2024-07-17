@@ -1,0 +1,24 @@
+include "../std/std.ttc"
+
+# fibonacci #
+def fib(n) = (
+    def a1 = 1
+    def a2 = 0
+    for [0, n - 1] (
+        def b = a1 + a2
+        a2 = a1
+        a1 = b
+    )
+)
+
+def N = 10
+
+# entry point #
+def main(?) = (
+    for [0, ?.size] -> i
+        printf("%5.0f | %s%n", i, ?[i])
+
+    def fibN = fib(N)
+    printf("fib(%.0f) = %.0f%n", N, fibN)
+    0
+)

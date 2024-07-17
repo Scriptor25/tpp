@@ -1,0 +1,46 @@
+include "interval.ttc"
+include "hittable.ttc"
+
+:sphere
+def new(center, radius, mat) = {
+    type = 0,
+    center = center,
+    radius = radius,
+    mat = mat
+}
+
+def hit(self, r, ray_t, rec) = (
+    def oc = vec3:sub(self.center, r.origin)
+    def a = vec3:length_squared(r.direction)
+    def h = vec3:dot(r.direction, oc)
+    def c = vec3:length_squared(oc) - self.radius * self.radius
+
+    def discriminant = h * h - a * c
+    if [discriminant < 0] 0
+    else (
+        def sqrtd = sqrt(discriminant)
+
+        def root = (h - sqrtd) / a
+        if [!interval:surrounds(ray_t, root)] (
+            root = (h + sqrtd) / a
+            if [!interval:surrounds(ray_t, root)] 0
+            else (
+                rec.t = root
+                rec.p = ray:at(r, rec.t)
+                def outward_normal = vec3:div(vec3:sub(rec.p, self.center), self.radius)
+                hit_record:set_face_normal(rec, r, outward_normal)
+                rec.mat = self.mat
+                1
+            )
+        )
+        else (
+            rec.t = root
+            rec.p = ray:at(r, rec.t)
+            def outward_normal = vec3:div(vec3:sub(rec.p, self.center), self.radius)
+            hit_record:set_face_normal(rec, r, outward_normal)
+            rec.mat = self.mat
+            1
+        )
+    )
+)
+:sphere

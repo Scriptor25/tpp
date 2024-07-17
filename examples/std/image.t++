@@ -1,0 +1,47 @@
+include "std.ttc"
+
+:image
+# Read Image #
+def read(filename)
+
+# Write Image #
+def write(self, filename) = (
+    fopen(filename, "wb")
+
+    fprintf(filename, "P6%n%.0f %.0f%n255%n", self.width, self.height)
+    for [0, self.width * self.height] -> i (
+        def c = self.pixels[i]
+        def r = (c >> 16) & 255
+        def g = (c >> 8) & 255
+        def b = c & 255
+        fprintf(filename, "%c%c%c", char(r), char(g), char(b))
+    )
+
+    fclose(filename)
+)
+
+# Create Image #
+def new(width, height) = {
+    width = width,
+    height = height,
+    pixels[width * height]
+}
+
+# Set Pixel #
+def setPixel(self, x, y, color) = self.pixels[x + y * self.width] = color
+
+# Get Pixel #
+def getPixel(self, x, y) = self.pixels[x + y * self.width]
+
+# Set Pixels #
+def setPixels(self, pixels, x, y, width, height) =
+    for [y, y + height] -> j
+        for [x, x + width] -> i
+            self.pixels[i + j * self.width] = pixels[(i - x) + (j - y) * width]
+
+# Get Pixels #
+def getPixels(self, pixels, x, y, width, height) = 
+    for [y, y + height] -> j
+        for [x, x + width] -> i
+            pixels[(i - x) + (j - y) * width] = self.pixels[i + j * self.width]
+:image

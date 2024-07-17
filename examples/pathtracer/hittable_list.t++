@@ -1,0 +1,39 @@
+include "hittable.ttc"
+
+:hittable_list
+def new() = {
+    type = 1,
+    objects = []
+}
+
+def new(object) = {
+    type = 1,
+    objects = [object]
+}
+
+def clear(self) = self.objects = []
+
+def add(self, object) = (
+    def tmp[self.objects.size + 1]
+    for [0, self.objects.size] -> i
+        tmp[i] = self.objects[i]
+    tmp[self.objects.size] = object
+    self.objects = tmp
+)
+
+def hit(self, r, ray_t, rec) = (
+    def temp_rec = {}
+    def hit_anything = 0
+    def closest_so_far = ray_t.max
+
+    for [0, self.objects.size] -> i (
+        if [hittable:hit(self.objects[i], r, interval:new(ray_t.min, closest_so_far), temp_rec)] (
+            hit_anything = 1
+            closest_so_far = temp_rec.t
+            rec = temp_rec
+        )
+    )
+
+    hit_anything
+)
+:hittable_list

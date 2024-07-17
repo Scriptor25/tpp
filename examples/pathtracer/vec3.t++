@@ -1,0 +1,78 @@
+include "../std/std.ttc"
+
+:vec3
+def new() = [0, 0, 0]
+def new(x, y, z) = [x, y, z]
+
+def copy(self, other) = (
+    printf("%s = %s%n", self.string, other.string)
+    self[0] = other[0]
+    self[1] = other[1]
+    self[2] = other[2]
+)
+
+def x(self) = self[0]
+def y(self) = self[1]
+def z(self) = self[2]
+
+def neg(self) = vec3:new(-self[0], -self[1], -self[2])
+
+def adde(self, v) = (
+    self[0] += v[0]
+    self[1] += v[1]
+    self[2] += v[2]
+    self
+)
+
+def mule(self, t) = (
+    self[0] *= t
+    self[1] *= t
+    self[2] *= t
+    self
+)
+
+def dive(self, t) = vec3:mule(self, 1 / t)
+
+def length_squared(self) = self[0] * self[0] + self[1] * self[1] + self[2] * self[2]
+def length(self) = sqrt(vec3:length_squared(self))
+
+def near_zero(self) = (
+    def s = 0.00000001
+    def is = (abs(self[0]) < s) && (abs(self[1]) < s) && (abs(self[2]) < s)
+)
+
+def add(l, r) = vec3:new(l[0] + r[0], l[1] + r[1], l[2] + r[2])
+def sub(l, r) = vec3:new(l[0] - r[0], l[1] - r[1], l[2] - r[2])
+def mul(l, r) = vec3:new(l[0] * r[0], l[1] * r[1], l[2] * r[2])
+def muln(l, r) = vec3:new(l[0] * r, l[1] * r, l[2] * r)
+def nmul(l, r) = vec3:muln(r, l)
+def div(l, r) = vec3:muln(l, 1 / r)
+
+def dot(l, r) = l[0] * r[0] + l[1] * r[1] + l[2] * r[2]
+def cross(l, r) = vec3:new(
+    l[1] * r[2] - l[2] * r[1],
+    l[2] * r[0] - l[0] * r[2],
+    l[0] * r[1] - l[1] * r[0]
+)
+
+def unit_vector(v) = vec3:div(v, vec3:length(v))
+
+def random() = vec3:new(random(), random(), random())
+def random(min, max) = vec3:new(random(min, max), random(min, max), random(min, max))
+def random_in_unit_sphere() = (
+    def p = vec3:random(-1, 1)
+    while [vec3:length_squared(p) >= 1]
+        p = vec3:random(-1, 1)
+    p
+)
+def random_unit_vector() = vec3:unit_vector(vec3:random_in_unit_sphere())
+def random_on_hemisphere(normal) = (
+    def on_unit_sphere = vec3:random_unit_vector()
+    if [vec3:dot(on_unit_sphere, normal) > 0]
+        on_unit_sphere
+    else vec3:neg(on_unit_sphere)
+)
+
+def reflect(v, n) = vec3:sub(v, vec3:nmul(2 * vec3:dot(v, n), n))
+
+:vec3

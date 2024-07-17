@@ -1,0 +1,15 @@
+include "vec3.ttc"
+
+:ray
+def new() = {
+    origin = vec3:new(),
+    direction = vec3:new()
+}
+
+def new(origin, direction) = {
+    origin = origin,
+    direction = direction
+}
+
+def at(self, t) = vec3:add(self.origin, vec3:nmul(t, self.direction))
+:ray

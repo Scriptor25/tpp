@@ -1,0 +1,42 @@
+include "ray.ttc"
+
+:lambertian
+def new(albedo) = {
+    type = 0,
+    albedo = albedo
+}
+
+def scatter(self, r_in, rec, attenuation, scattered) = (
+    def scatter_direction = vec3:add(rec.normal, vec3:random_unit_vector())
+
+    if [vec3:near_zero(scatter_direction)]
+        scatter_direction = rec.normal
+
+    scattered = ray:new(rec.p, scatter_direction)
+    vec3:copy(attenuation, self.albedo)
+    1
+)
+:lambertian
+
+:metal
+def new(albedo) = {
+    type = 1,
+    albedo = albedo
+}
+
+def scatter(self, r_in, rec, attenuation, scattered) = (
+    def reflected = vec3:reflect(r_in.direction, rec.normal)
+    scattered = ray:new(rec.p, reflected)
+    vec3:copy(attenuation, self.albedo)
+    1
+)
+:metal
+
+:material
+def scatter(self, r_in, rec, attenuation, scattered) =
+    if [self.type == 0]
+        lambertian:scatter(self, r_in, rec, attenuation, scattered)
+    else if [self.type == 1]
+        metal:scatter(self, r_in, rec, attenuation, scattered)
+    else 0
+:material

@@ -1,0 +1,25 @@
+include "common.ttc"
+
+:interval
+def new() = {
+    min = infinity,
+    max = -infinity
+}
+
+def new(min, max) = {
+    min = min,
+    max = max
+}
+
+def size(self) = self.max - self.min
+
+def contains(self, x) = self.min <= x && x <= self.max
+def surrounds(self, x) = self.min < x && x < self.max
+def clamp(self, x) =
+    if [x < self.min] self.min
+    else if [x > self.max] self.max
+    else x
+
+def empty = interval:new(infinity, -infinity)
+def universe = interval:new(-infinity, infinity)
+:interval

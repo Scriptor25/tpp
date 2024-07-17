@@ -1,0 +1,36 @@
+include "../std/image.ttc"
+include "../std/std.ttc"
+
+include "camera.ttc"
+include "color.ttc"
+include "common.ttc"
+include "hittable.ttc"
+include "hittable_list.ttc"
+include "interval.ttc"
+include "ray.ttc"
+include "sphere.ttc"
+include "vec3.ttc"
+
+def main(?) = (
+
+    def world = hittable_list:new()
+
+    def material_ground = lambertian:new(vec3:new(0.8, 0.8, 0.0))
+    def material_center = lambertian:new(vec3:new(0.1, 0.2, 0.5))
+    def material_left = metal:new(vec3:new(0.8, 0.8, 0.8))
+    def material_right = metal:new(vec3:new(0.8, 0.6, 0.2))
+
+    hittable_list:add(world, sphere:new(vec3:new( 0.0, -100.5, -1.0), 100.0, material_ground))
+    hittable_list:add(world, sphere:new(vec3:new( 0.0,    0.0, -1.2),   0.5, material_center))
+    hittable_list:add(world, sphere:new(vec3:new(-1.0,    0.0, -1.0),   0.5, material_left))
+    hittable_list:add(world, sphere:new(vec3:new( 1.0,    0.0, -1.0),   0.5, material_right))
+
+    def cam = camera:new()
+    cam.aspect_ratio = 16 / 9
+    cam.image_width = 400
+    cam.samples_per_pixel = 1
+    cam.max_depth = 2
+    camera:render(cam, world)
+
+    0
+)

@@ -1,0 +1,109 @@
+include "../std/std.ttc"
+
+def pi = 3.141596
+def pi2 = 2 * pi
+
+def theta_spacing = 0.07
+def phi_spacing = 0.02
+
+def char_ratio = 0.45
+
+def screen_width = 60
+def screen_height = 30
+def screen_width2 = screen_width / 2
+def screen_height2 = screen_height / 2
+
+def R1 = 1
+def R2 = 2
+def K2 = 5
+def K1 = screen_width * K2 * 3 / (8 * (R1 + R2))
+
+def thetas = floor(pi2 / theta_spacing)
+def theta_cos[thetas]
+def theta_sin[thetas]
+
+def phis = floor(pi2 / phi_spacing)
+def phi_cos[phis]
+def phi_sin[phis]
+
+def render_frame(A, B) = (
+    def start = millis()
+
+    def cosA = cos(A)
+    def sinA = sin(A)
+    def cosB = cos(B)
+    def sinB = sin(B)
+
+    def output[screen_width * screen_height] = ' '
+    def zbuffer[screen_width * screen_height]
+
+    for [0, thetas] -> theta (
+        def costheta = theta_cos[theta]
+        def sintheta = theta_sin[theta]
+
+        def circlex = R2 + R1 * costheta
+        def circley = R1 * sintheta
+
+        for [0, phis] -> phi (
+            def cosphi = phi_cos[phi]
+            def sinphi = phi_sin[phi]
+
+            def x = circlex * (cosB * cosphi + sinA * sinB * sinphi) - circley * cosA * sinB
+            def y = circlex * (sinB * cosphi - sinA * cosB * sinphi) + circley * cosA * cosB
+            def z = K2 + cosA * circlex * sinphi + circley * sinA
+            def ooz = 1 / z
+
+            def k1_ooz = K1 * ooz
+            def xp = floor(screen_width2 + k1_ooz * x)
+            def yp = floor(screen_height2 - k1_ooz * y * char_ratio)
+
+            if [!(xp < 0 || xp >= screen_width || yp < 0 || yp >= screen_height)] (
+
+                def L = cosphi * costheta * sinB - cosA * costheta * sinphi - sinA * sintheta + cosB * (cosA * sintheta - costheta * sinA * sinphi)
+
+                if [L > 0] (
+                    def idx = xp + yp * screen_width
+                    if [ooz > zbuffer[idx]] (
+                        zbuffer[idx] = ooz
+                        output[idx] = ".,-~:;=!*#$@"[floor(L * 8)]
+                    )
+                )
+            )
+        )
+    )
+
+    printf("\x1B\x9BH")
+    for [0, screen_height] -> j (
+        def jw = j * screen_width
+        for [0, screen_width] -> i
+            putchar(output[i + jw])
+        putchar('\n')
+    )
+
+    millis() - start
+)
+
+def main(?) = (
+
+    printf("\x1B\x9BH\x1B\x9BJ")
+
+    for [0, thetas] -> theta (
+        def t = pi2 * theta / thetas
+        theta_cos[theta] = cos(t)
+        theta_sin[theta] = sin(t)
+    )
+    
+    for [0, phis] -> phi (
+        def t = pi2 * phi / phis
+        phi_cos[phi] = cos(t)
+        phi_sin[phi] = sin(t)
+    )
+
+    def a = 0
+    def b = 0
+    while [1] (
+        def dt = render_frame(a += 0.04, b += 0.07)
+        printf("%4.0f FPS%n", floor(1000.0 / dt))
+    )
+    0
+)

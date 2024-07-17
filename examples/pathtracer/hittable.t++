@@ -1,0 +1,28 @@
+include "vec3.ttc"
+
+:hit_record
+def new() = {
+    p = vec3:new(),
+    normal = vec3:new(),
+    t = 0,
+    front_face = 0,
+    mat = {}
+}
+
+def set_face_normal(self, r, outward_normal) = (
+    self.front_face = vec3:dot(r.direction, outward_normal) < 0
+    self.normal = if [self.front_face] outward_normal else vec3:neg(outward_normal)
+)
+:hit_record
+
+def sphere:hit(self, r, ray_t, rec)
+def hittable_list:hit(self, r, ray_t, rec)
+
+:hittable
+def hit(self, r, ray_t, rec) = 
+    if [self.type == 0]
+        sphere:hit(self, r, ray_t, rec)
+    else if [self.type == 1]
+        hittable_list:hit(self, r, ray_t, rec)
+    else 0
+:hittable

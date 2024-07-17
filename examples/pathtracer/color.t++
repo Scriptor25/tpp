@@ -1,0 +1,22 @@
+include "interval.ttc"
+
+:color
+def intensity = interval:new(0.000, 0.999)
+
+def linear_to_gamma(linear_component) =
+    if [linear_component > 0]
+        sqrt(linear_component)
+    else 0
+
+def int(self) = (
+    def r = color:linear_to_gamma(self[0])
+    def g = color:linear_to_gamma(self[1])
+    def b = color:linear_to_gamma(self[2])
+
+    def ir = floor(256 * interval:clamp(color:intensity, r))
+    def ig = floor(256 * interval:clamp(color:intensity, g))
+    def ib = floor(256 * interval:clamp(color:intensity, b))
+
+    (ir & 255) << 16 | (ig & 255) << 8 | (ib & 255)
+)
+:color
