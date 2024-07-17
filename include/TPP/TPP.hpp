@@ -4,15 +4,15 @@
 
 namespace tpp
 {
-    struct Name;
+	struct Name;
 
-    class Parser;
-    struct SourceLocation;
-    struct Token;
-    struct Expression;
+	class Parser;
+	struct SourceLocation;
+	struct Token;
+	struct Expression;
 
-    class Environment;
-    struct ValueBase;
+	class Environment;
+	struct ValueBase;
 
-    typedef std::shared_ptr<Expression> ExprPtr;
+	typedef std::shared_ptr<Expression> ExprPtr;
 }

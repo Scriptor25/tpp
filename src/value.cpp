@@ -3,27 +3,12 @@
 
 tpp::ValueBase::~ValueBase() = default;
 
-bool tpp::ValueBase::GetBool()
-{
-    throw std::runtime_error("not implemented");
-}
+bool tpp::ValueBase::GetBool() { throw std::runtime_error("not implemented"); }
 
-double tpp::ValueBase::GetDouble()
-{
-    throw std::runtime_error("not implemented");
-}
+double tpp::ValueBase::GetDouble() { throw std::runtime_error("not implemented"); }
 
-tpp::Value<double>::Value(double content)
-    : Content(content)
-{
-}
+tpp::Value<double>::Value(double content) : Content(content) {}
 
-bool tpp::Value<double>::GetBool()
-{
-    return Content != 0.0;
-}
+bool tpp::Value<double>::GetBool() { return Content != 0.0; }
 
-double tpp::Value<double>::GetDouble()
-{
-    return Content;
-}
+double tpp::Value<double>::GetDouble() { return Content; }
