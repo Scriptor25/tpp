@@ -12,7 +12,9 @@ namespace tpp
 	struct Expression;
 
 	class Environment;
+	struct UnOpInfo;
 	struct ValueBase;
+	struct Type;
 
 	typedef std::shared_ptr<Expression> ExprPtr;
 }
