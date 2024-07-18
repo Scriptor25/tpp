@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <memory>
 
 namespace tpp
@@ -11,14 +12,10 @@ namespace tpp
 	struct Token;
 	struct Expression;
 
-	class Environment;
-	struct UnOpInfo;
-	struct ValueBase;
-	class Type;
-	struct Function;
-
 	typedef std::shared_ptr<Expression> ExprPtr;
-	typedef std::shared_ptr<ValueBase> ValPtr;
-	typedef std::shared_ptr<Type> TypePtr;
-	typedef std::shared_ptr<Function> FunPtr;
+
+	std::ostream &operator<<(std::ostream &out, const ExprPtr &ptr);
+
+	[[__noreturn__]]
+	void error(const char *format, ...);
 }

@@ -3,7 +3,6 @@
 #include <TPP/Name.hpp>
 #include <TPP/SourceLocation.hpp>
 #include <TPP/TPP.hpp>
-#include <TPP/Value.hpp>
 #include <map>
 #include <string>
 #include <vector>
@@ -15,17 +14,12 @@ namespace tpp
 		explicit Expression(const SourceLocation &location);
 		virtual ~Expression();
 
-		virtual ExprPtr MakeConstant();
-		virtual ValPtr Evaluate(Environment &env) = 0;
-
 		SourceLocation Location;
 	};
 
 	struct DefFunctionExpression : Expression
 	{
 		DefFunctionExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const std::vector<std::string> &arg_names, bool has_var_args, const ExprPtr &body);
-
-		ValPtr Evaluate(Environment &env) override;
 
 		std::string NativeName;
 		Name MName;
@@ -39,8 +33,6 @@ namespace tpp
 		DefVariableExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const ExprPtr &init);
 		DefVariableExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const ExprPtr &size, const ExprPtr &init);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		std::string NativeName;
 		Name MName;
 		ExprPtr Size;
@@ -50,8 +42,6 @@ namespace tpp
 	struct ForExpression : Expression
 	{
 		ForExpression(const SourceLocation &location, const ExprPtr &from, const ExprPtr &to, const ExprPtr &step, const std::string &id, const ExprPtr &body);
-
-		ValPtr Evaluate(Environment &env) override;
 
 		ExprPtr From;
 		ExprPtr To;
@@ -64,8 +54,6 @@ namespace tpp
 	{
 		WhileExpression(const SourceLocation &location, const ExprPtr &condition, const ExprPtr &body);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		ExprPtr Condition;
 		ExprPtr Body;
 	};
@@ -73,8 +61,6 @@ namespace tpp
 	struct IfExpression : Expression
 	{
 		IfExpression(const SourceLocation &location, const ExprPtr &condition, const ExprPtr &branchTrue, const ExprPtr &branchFalse);
-
-		ValPtr Evaluate(Environment &env) override;
 
 		ExprPtr Condition;
 		ExprPtr BranchTrue;
@@ -85,16 +71,12 @@ namespace tpp
 	{
 		GroupExpression(const SourceLocation &location, const std::vector<ExprPtr> &body);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		std::vector<ExprPtr> Body;
 	};
 
 	struct BinaryExpression : Expression
 	{
 		BinaryExpression(const SourceLocation &location, const std::string &op, const ExprPtr &lhs, const ExprPtr &rhs);
-
-		ValPtr Evaluate(Environment &env) override;
 
 		std::string Operator;
 		ExprPtr Lhs;
@@ -105,17 +87,13 @@ namespace tpp
 	{
 		CallExpression(const SourceLocation &location, const Name &callee, const std::vector<ExprPtr> &args);
 
-		ValPtr Evaluate(Environment &env) override;
-
-		FunPtr &Callee;
+		Name Callee;
 		std::vector<ExprPtr> Args;
 	};
 
 	struct IndexExpression : Expression
 	{
 		IndexExpression(const SourceLocation &location, const ExprPtr &array, const ExprPtr &index);
-
-		ValPtr Evaluate(Environment &env) override;
 
 		ExprPtr Array;
 		ExprPtr Index;
@@ -125,8 +103,6 @@ namespace tpp
 	{
 		MemberExpression(const SourceLocation &location, const ExprPtr &object, const std::string &member);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		ExprPtr Object;
 		std::string Member;
 	};
@@ -135,16 +111,12 @@ namespace tpp
 	{
 		IDExpression(const SourceLocation &location, const Name &name);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		Name MName;
 	};
 
 	struct NumberExpression : Expression
 	{
 		NumberExpression(const SourceLocation &location, const std::string &value);
-
-		ValPtr Evaluate(Environment &env) override;
 
 		double Value;
 	};
@@ -153,8 +125,6 @@ namespace tpp
 	{
 		CharExpression(const SourceLocation &location, const std::string &value);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		char Value;
 	};
 
@@ -162,23 +132,17 @@ namespace tpp
 	{
 		StringExpression(const SourceLocation &location, const std::string &value);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		std::string Value;
 	};
 
 	struct VarArgsExpression : Expression
 	{
 		explicit VarArgsExpression(const SourceLocation &location);
-
-		ValPtr Evaluate(Environment &env) override;
 	};
 
 	struct UnaryExpression : Expression
 	{
 		UnaryExpression(const SourceLocation &location, const std::string &op, const ExprPtr &operand);
-
-		ValPtr Evaluate(Environment &env) override;
 
 		std::string Operator;
 		ExprPtr Operand;
@@ -188,8 +152,6 @@ namespace tpp
 	{
 		SizedArrayExpression(const SourceLocation &location, const ExprPtr &size, const ExprPtr &init);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		ExprPtr Size;
 		ExprPtr Init;
 	};
@@ -198,8 +160,6 @@ namespace tpp
 	{
 		ObjectExpression(const SourceLocation &location, const std::map<std::string, ExprPtr> &fields);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		std::map<std::string, ExprPtr> Fields;
 	};
 
@@ -207,8 +167,26 @@ namespace tpp
 	{
 		ArrayExpression(const SourceLocation &location, const std::vector<ExprPtr> &values);
 
-		ValPtr Evaluate(Environment &env) override;
-
 		std::vector<ExprPtr> Values;
 	};
+
+	std::ostream &operator<<(std::ostream &out, const DefFunctionExpression &e);
+	std::ostream &operator<<(std::ostream &out, const DefVariableExpression &e);
+	std::ostream &operator<<(std::ostream &out, const ForExpression &e);
+	std::ostream &operator<<(std::ostream &out, const WhileExpression &e);
+	std::ostream &operator<<(std::ostream &out, const IfExpression &e);
+	std::ostream &operator<<(std::ostream &out, const GroupExpression &e);
+	std::ostream &operator<<(std::ostream &out, const BinaryExpression &e);
+	std::ostream &operator<<(std::ostream &out, const CallExpression &e);
+	std::ostream &operator<<(std::ostream &out, const IndexExpression &e);
+	std::ostream &operator<<(std::ostream &out, const MemberExpression &e);
+	std::ostream &operator<<(std::ostream &out, const IDExpression &e);
+	std::ostream &operator<<(std::ostream &out, const NumberExpression &e);
+	std::ostream &operator<<(std::ostream &out, const CharExpression &e);
+	std::ostream &operator<<(std::ostream &out, const StringExpression &e);
+	std::ostream &operator<<(std::ostream &out, const VarArgsExpression &e);
+	std::ostream &operator<<(std::ostream &out, const UnaryExpression &e);
+	std::ostream &operator<<(std::ostream &out, const SizedArrayExpression &e);
+	std::ostream &operator<<(std::ostream &out, const ObjectExpression &e);
+	std::ostream &operator<<(std::ostream &out, const ArrayExpression &e);
 }

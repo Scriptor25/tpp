@@ -17,8 +17,25 @@ tpp::Name::Name(const char *name) : Name(std::string(name)) {}
 
 tpp::Name::Name(const std::string &name) : Name(split(name, ":")) {}
 
-tpp::Name::Name(const std::vector<std::string> &path) : Path(path) {}
+tpp::Name::Name(const std::vector<std::string> &path) : Path(path)
+{
+	for (size_t i = 0; i < path.size(); ++i)
+	{
+		if (i > 0) Str += ':';
+		Str += path[i];
+	}
+}
 
-tpp::Name::Name(const std::vector<std::string> &ns, const std::string &name) : Name(ns) { Path.push_back(name); }
+tpp::Name::Name(const std::vector<std::string> &ns, const std::string &name) : Path(ns)
+{
+	Path.push_back(name);
+	for (size_t i = 0; i < Path.size(); ++i)
+	{
+		if (i > 0) Str += ':';
+		Str += Path[i];
+	}
+}
 
-bool tpp::operator<(const Name &a, const Name &b) { return a.Path < b.Path; }
+const char *tpp::Name::c_str() const { return Str.c_str(); }
+
+bool tpp::operator<(const Name &a, const Name &b) { return a.Str < b.Str; }

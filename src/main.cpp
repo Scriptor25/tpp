@@ -1,11 +1,8 @@
-#include <TPP/Environment.hpp>
 #include <TPP/Expression.hpp>
 #include <TPP/Name.hpp>
 #include <TPP/Parser.hpp>
 #include <TPP/TPP.hpp>
-#include <TPP/Value.hpp>
 #include <iostream>
-#include <string>
 
 int main(const int argc, const char **argv)
 {
@@ -16,18 +13,6 @@ int main(const int argc, const char **argv)
 	}
 
 	const std::string filename = argv[1];
-	tpp::Environment env;
 
-	tpp::Parser::ParseFile(
-		filename,
-		[&env](const tpp::ExprPtr expression)
-		{
-			std::cout << expression << std::endl;
-			expression->Evaluate(env);
-		});
-
-	// std::vector<tpp::ValPtr> args;
-	// for (int a = 1; a < argc; ++a) args.push_back(tpp::CreateValue<std::string>(argv[a]));
-	// const auto result = env.Call<double>("main", args);
-	// std::cout << "Exit Code " << result << std::endl;
+	tpp::Parser::ParseFile(filename, [](const tpp::ExprPtr expression) { std::cout << expression << std::endl; });
 }

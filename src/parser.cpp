@@ -2,7 +2,6 @@
 #include <TPP/Parser.hpp>
 #include <fstream>
 #include <memory>
-#include <stdexcept>
 
 std::map<std::string, unsigned> tpp::Parser::PRECEDENCES = {
 	{ "=", 0 },	 { "<<=", 0 }, { ">>=", 0 }, { ">>>=", 0 }, { "+=", 0 },  { "-=", 0 }, { "*=", 0 }, { "/=", 0 }, { "%=", 0 }, { "&=", 0 },
@@ -16,7 +15,7 @@ void tpp::Parser::ParseFile(const std::filesystem::path &filepath, std::vector<s
 	parsed.push_back(filepath);
 
 	std::ifstream stream(filepath);
-	if (!stream.is_open()) throw std::runtime_error("failed to open file");
+	if (!stream.is_open()) error("failed to open file: %s", filepath.string().c_str());
 	Parser parser(stream, filepath, parsed, callback);
 	for (ExprPtr expression; (expression = parser.GetNext());) { callback(expression); }
 }
@@ -213,7 +212,7 @@ tpp::Token &tpp::Parser::Next()
 			break;
 
 		case ParserMode_Id:
-			if (!isalnum(chr) || chr == '_') return m_Token = { loc, TokenType_Id, value };
+			if (!isalnum(chr) && chr != '_') return m_Token = { loc, TokenType_Id, value };
 			value += (char) chr;
 			break;
 
@@ -265,7 +264,7 @@ tpp::Token tpp::Parser::Expect(const TokenType type)
 		Next();
 		return token;
 	}
-	throw std::runtime_error("unexpected token type");
+	error("unexpected token: %s", m_Token.Value.c_str());
 }
 
 void tpp::Parser::Expect(const std::string &value)
@@ -275,7 +274,7 @@ void tpp::Parser::Expect(const std::string &value)
 		Next();
 		return;
 	}
-	throw std::runtime_error("unexpected token type");
+	error("unexpected token: %s", m_Token.Value.c_str());
 }
 
 tpp::Token tpp::Parser::Skip()
@@ -324,7 +323,7 @@ tpp::ExprPtr tpp::Parser::Parse()
 {
 	if (At("def")) return ParseDef();
 
-	return ParseBinary()->MakeConstant();
+	return ParseBinary();
 }
 
 tpp::ExprPtr tpp::Parser::ParseDef()
@@ -522,7 +521,7 @@ tpp::ExprPtr tpp::Parser::ParseMember(ExprPtr object)
 
 tpp::ExprPtr tpp::Parser::ParsePrimary()
 {
-	if (AtEOF()) throw std::runtime_error("reached end of file");
+	if (AtEOF()) error("reached end of file");
 
 	auto location = m_Token.Location;
 
@@ -617,5 +616,5 @@ tpp::ExprPtr tpp::Parser::ParsePrimary()
 		return std::make_shared<ArrayExpression>(location, values);
 	}
 
-	throw std::runtime_error("unhandled token");
+	error("unhandled token: %s", m_Token.Value.c_str());
 }

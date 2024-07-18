@@ -2,11 +2,11 @@
 def native("putchar") putchar(c)
 def native("printf") printf(format, ?)
 def native("readLine") readLine()
-def native("fopen") fopen(filename, flags)
-def native("fclose") fclose(filename)
-def native("fread") fread(filename)
-def native("fwrite") fwrite(filename, x)
-def native("fprintf") fprintf(filename, format, ?)
+def native("fopen") fopen(filename, modes)
+def native("fclose") fclose(stream)
+def native("fread") fread(ptr, size, count, stream)
+def native("fwrite") fwrite(ptr, size, count, stream)
+def native("fprintf") fprintf(stream, format, ?)
 
 # MATH #
 def native("sin") sin(x)

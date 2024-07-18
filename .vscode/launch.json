@@ -10,7 +10,7 @@
             "name": "Debug",
             "program": "${workspaceFolder}/build/t++",
             "args": [
-                "examples/simple/fib.t++"
+                "examples/simple/test.t++"
             ],
             "cwd": "${workspaceFolder}"
         }
