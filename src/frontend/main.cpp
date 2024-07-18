@@ -1,7 +1,7 @@
-#include <TPP/Expression.hpp>
-#include <TPP/Name.hpp>
-#include <TPP/Parser.hpp>
-#include <TPP/TPP.hpp>
+#include <TPP/Frontend/Expression.hpp>
+#include <TPP/Frontend/Name.hpp>
+#include <TPP/Frontend/Parser.hpp>
+#include <TPP/Frontend/TPP.hpp>
 #include <iostream>
 
 int main(const int argc, const char **argv)

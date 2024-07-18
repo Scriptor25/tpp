@@ -1,8 +1,8 @@
 #pragma once
 
-#include <TPP/Name.hpp>
-#include <TPP/TPP.hpp>
-#include <TPP/Token.hpp>
+#include <TPP/Frontend/Name.hpp>
+#include <TPP/Frontend/TPP.hpp>
+#include <TPP/Frontend/Token.hpp>
 #include <filesystem>
 #include <functional>
 #include <iostream>

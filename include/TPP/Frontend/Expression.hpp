@@ -1,8 +1,8 @@
 #pragma once
 
-#include <TPP/Name.hpp>
-#include <TPP/SourceLocation.hpp>
-#include <TPP/TPP.hpp>
+#include <TPP/Frontend/Name.hpp>
+#include <TPP/Frontend/SourceLocation.hpp>
+#include <TPP/Frontend/TPP.hpp>
 #include <map>
 #include <string>
 #include <vector>

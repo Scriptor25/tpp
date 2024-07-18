@@ -17,5 +17,5 @@ namespace tpp
 	std::ostream &operator<<(std::ostream &out, const ExprPtr &ptr);
 
 	[[__noreturn__]]
-	void error(const char *format, ...);
+	void error(const SourceLocation &location, const char *format, ...);
 }

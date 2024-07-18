@@ -1,5 +1,6 @@
-#include <TPP/Expression.hpp>
-#include <TPP/Parser.hpp>
+#include <TPP/Frontend/Expression.hpp>
+#include <TPP/Frontend/Parser.hpp>
+#include <TPP/Frontend/SourceLocation.hpp>
 #include <fstream>
 #include <memory>
 
@@ -15,7 +16,7 @@ void tpp::Parser::ParseFile(const std::filesystem::path &filepath, std::vector<s
 	parsed.push_back(filepath);
 
 	std::ifstream stream(filepath);
-	if (!stream.is_open()) error("failed to open file: %s", filepath.string().c_str());
+	if (!stream.is_open()) error(SourceLocation::UNKNOWN, "failed to open file: %s", filepath.string().c_str());
 	Parser parser(stream, filepath, parsed, callback);
 	for (ExprPtr expression; (expression = parser.GetNext());) { callback(expression); }
 }
@@ -264,7 +265,7 @@ tpp::Token tpp::Parser::Expect(const TokenType type)
 		Next();
 		return token;
 	}
-	error("unexpected token: %s", m_Token.Value.c_str());
+	error(m_Token.Location, "unexpected token: %s", m_Token.Value.c_str());
 }
 
 void tpp::Parser::Expect(const std::string &value)
@@ -274,7 +275,7 @@ void tpp::Parser::Expect(const std::string &value)
 		Next();
 		return;
 	}
-	error("unexpected token: %s", m_Token.Value.c_str());
+	error(m_Token.Location, "unexpected token: %s", m_Token.Value.c_str());
 }
 
 tpp::Token tpp::Parser::Skip()
@@ -521,7 +522,7 @@ tpp::ExprPtr tpp::Parser::ParseMember(ExprPtr object)
 
 tpp::ExprPtr tpp::Parser::ParsePrimary()
 {
-	if (AtEOF()) error("reached end of file");
+	if (AtEOF()) error(SourceLocation::UNKNOWN, "reached end of file");
 
 	auto location = m_Token.Location;
 
@@ -616,5 +617,5 @@ tpp::ExprPtr tpp::Parser::ParsePrimary()
 		return std::make_shared<ArrayExpression>(location, values);
 	}
 
-	error("unhandled token: %s", m_Token.Value.c_str());
+	error(m_Token.Location, "unhandled token: %s", m_Token.Value.c_str());
 }

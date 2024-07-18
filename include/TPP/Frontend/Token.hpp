@@ -1,6 +1,6 @@
 #pragma
 
-#include <TPP/SourceLocation.hpp>
+#include <TPP/Frontend/SourceLocation.hpp>
 
 namespace tpp
 {
