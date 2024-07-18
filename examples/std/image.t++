@@ -8,7 +8,7 @@ def read(filename)
 def write(self, filename) = (
     fopen(filename, "wb")
 
-    fprintf(filename, "P6%n%.0f %.0f%n255%n", self.width, self.height)
+    fprintf(filename, "P6\n%.0f %.0f\n255\n", self.width, self.height)
     for [0, self.width * self.height] -> i (
         def c = self.pixels[i]
         def r = (c >> 16) & 255

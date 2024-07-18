@@ -18,15 +18,15 @@ def main(?) = (
         def door_num = number(door)
 
         if [door_num == ghost_door] (
-            printf("Ghost!%n")
+            printf("Ghost!\n")
             running = 0
         )
         else (
-            printf("No Ghost.%n")
+            printf("No Ghost.\n")
             score += 1
         )
     )
 
-    printf("Game Over.%nYour score: %.0f%n", score)
+    printf("Game Over.\nYour score: %.0f\n", score)
     0
 )

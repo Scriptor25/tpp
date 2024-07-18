@@ -96,6 +96,6 @@ def render(self, world) = (
 
     printf("\rWriting image...          ")
     image:write(image, "out.ppm")
-    printf("\rDone.           %n")
+    printf("\rDone.           \n")
 )
 :camera

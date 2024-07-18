@@ -5,7 +5,7 @@ def new() = [0, 0, 0]
 def new(x, y, z) = [x, y, z]
 
 def copy(self, other) = (
-    printf("%s = %s%n", self.string, other.string)
+    printf("%s = %s\n", self.string, other.string)
     self[0] = other[0]
     self[1] = other[1]
     self[2] = other[2]

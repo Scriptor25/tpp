@@ -183,7 +183,7 @@ std::ostream &tpp::operator<<(std::ostream &out, const IDExpression &e) { return
 
 std::ostream &tpp::operator<<(std::ostream &out, const NumberExpression &e) { return out << e.Value; }
 
-std::ostream &tpp::operator<<(std::ostream &out, const CharExpression &e) { return out << '\'' << (e.Value > 0x20 ? e.Value : 0) << '\''; }
+std::ostream &tpp::operator<<(std::ostream &out, const CharExpression &e) { return out << '\'' << (char) (e.Value > 0x20 ? e.Value : 0) << '\''; }
 
 std::ostream &tpp::operator<<(std::ostream &out, const StringExpression &e) { return out << '"' << e.Value << '"'; }
 

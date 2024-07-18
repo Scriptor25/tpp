@@ -5,14 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "lldb",
-            "request": "launch",
             "name": "Debug",
-            "program": "${workspaceFolder}/build/t++",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
             "args": [
                 "examples/simple/test.t++"
             ],
-            "cwd": "${workspaceFolder}"
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
         }
     ]
 }

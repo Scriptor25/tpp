@@ -103,7 +103,7 @@ def main(?) = (
     def b = 0
     while [1] (
         def dt = render_frame(a += 0.04, b += 0.07)
-        printf("%4.0f FPS%n", floor(1000.0 / dt))
+        printf("%4.0f FPS\n", floor(1000.0 / dt))
     )
     0
 )
