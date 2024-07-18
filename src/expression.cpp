@@ -1,5 +1,6 @@
 #include <TPP/Expression.hpp>
 #include <TPP/SourceLocation.hpp>
+#include <functional>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -101,6 +102,14 @@ static std::string get_spaces()
 	return str;
 }
 
+static std::string replace(const std::string &str, const std::function<bool(char)> filter, char d)
+{
+	auto cpy = str;
+	for (auto &c : cpy)
+		if (filter(c)) c = d;
+	return cpy;
+}
+
 std::ostream &tpp::operator<<(std::ostream &out, const DefFunctionExpression &e)
 {
 	out << "def ";
@@ -185,7 +194,10 @@ std::ostream &tpp::operator<<(std::ostream &out, const NumberExpression &e) { re
 
 std::ostream &tpp::operator<<(std::ostream &out, const CharExpression &e) { return out << '\'' << (char) (e.Value > 0x20 ? e.Value : 0) << '\''; }
 
-std::ostream &tpp::operator<<(std::ostream &out, const StringExpression &e) { return out << '"' << e.Value << '"'; }
+std::ostream &tpp::operator<<(std::ostream &out, const StringExpression &e)
+{
+	return out << '"' << replace(e.Value, [](char c) { return c <= 0x20; }, 0) << '"';
+}
 
 std::ostream &tpp::operator<<(std::ostream &out, const VarArgsExpression &e) { return out << '?'; }
 
