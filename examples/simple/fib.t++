@@ -1,7 +1,7 @@
 include "../std/std.t++"
 
 # fibonacci #
-def fib(n) = (
+def fib(n) -> number = (
     def a1 = 1
     def a2 = 0
     for [0, n - 1] (
@@ -14,7 +14,7 @@ def fib(n) = (
 def N = 10
 
 # entry point #
-def main(?) = (
+def main(?) -> number = (
     for [0, ?.size] -> i
         printf("%5.0f | %s\n", i, ?[i])
 

@@ -1,7 +1,7 @@
 include "vec3.t++"
 
 :hit_record
-def new() = {
+def new() -> object = {
     p = vec3:new(),
     normal = vec3:new(),
     t = 0,
@@ -15,11 +15,11 @@ def set_face_normal(self, r, outward_normal) = (
 )
 :hit_record
 
-def sphere:hit(self, r, ray_t, rec)
-def hittable_list:hit(self, r, ray_t, rec)
+def sphere:hit(self, r, ray_t, rec) -> number
+def hittable_list:hit(self, r, ray_t, rec) -> number
 
 :hittable
-def hit(self, r, ray_t, rec) = 
+def hit(self, r, ray_t, rec) -> number =
     if [self.type == 0]
         sphere:hit(self, r, ray_t, rec)
     else if [self.type == 1]

@@ -6,7 +6,7 @@ include "ray.t++"
 include "vec3.t++"
 
 :camera
-def new() = {
+def new() -> object = {
     # public #
     aspect_ratio = 1,
     image_width = 100,
@@ -42,11 +42,11 @@ def initialize(self) = (
     self.pixel00_loc = vec3:add(viewport_upper_left, vec3:nmul(0.5, vec3:add(self.pixel_delta_u, self.pixel_delta_v)))
 )
 
-def sample_square() = vec3:new(random() - 0.5, random() - 0.5, 0)
+def sample_square() -> object = vec3:new(random() - 0.5, random() - 0.5, 0)
 
-def get_ray(self, i, j) = (
+def get_ray(self, i, j) -> object = (
     def offset = camera:sample_square()
-    def pixel_sample = vec3:add(vec3:add(self.pixel00_loc, vec3:nmul(i + offset[0], self.pixel_delta_u)), vec3:nmul(j + offset[1], self.pixel_delta_v))
+    def pixel_sample = vec3:add(vec3:add(self.pixel00_loc, vec3:nmul(i + offset.x, self.pixel_delta_u)), vec3:nmul(j + offset.y, self.pixel_delta_v))
 
     def ray_origin = self.center
     def ray_direction = vec3:sub(pixel_sample, ray_origin)
@@ -54,9 +54,7 @@ def get_ray(self, i, j) = (
     ray:new(ray_origin, ray_direction)
 )
 
-def ray_color(self, r, depth, world)
-
-def ray_color(self, r, depth, world) = (
+def ray_color(self, r, depth, world) -> object = (
     if [depth > 0] (
         def rec = hit_record:new()
 
@@ -69,7 +67,7 @@ def ray_color(self, r, depth, world) = (
         )
         else (
             def unit_direction = vec3:unit_vector(r.direction)
-            def a = 0.5 * (unit_direction[1] + 1)
+            def a = 0.5 * (unit_direction.y + 1)
             vec3:add(vec3:nmul(1 - a, vec3:new(1, 1, 1)), vec3:nmul(a, vec3:new(0.5, 0.7, 1)))
         )
     ) else (

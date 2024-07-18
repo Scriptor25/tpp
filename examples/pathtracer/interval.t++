@@ -1,21 +1,21 @@
 include "common.t++"
 
 :interval
-def new() = {
+def new() -> object = {
     min = infinity,
     max = -infinity
 }
 
-def new(min, max) = {
+def new(min, max) -> object = {
     min = min,
     max = max
 }
 
-def size(self) = self.max - self.min
+def size(self) -> number = self.max - self.min
 
-def contains(self, x) = self.min <= x && x <= self.max
-def surrounds(self, x) = self.min < x && x < self.max
-def clamp(self, x) =
+def contains(self, x) -> number = self.min <= x && x <= self.max
+def surrounds(self, x) -> number = self.min < x && x < self.max
+def clamp(self, x) -> number =
     if [x < self.min] self.min
     else if [x > self.max] self.max
     else x

@@ -6,10 +6,10 @@ def max_iteration = 100
 def sample_size = 10
 def palette = " .,-~:;=!*#$@"
 
-def scale(x, xmin, xmax, min, max) = min + (max - min) * (xmax - x) / (xmax - xmin)
-def clamp(x, min, max) = if [x < min] min else if [x > max] max else x
+def scale(x, xmin, xmax, min, max) -> number = min + (max - min) * (xmax - x) / (xmax - xmin)
+def clamp(x, min, max) -> number = if [x < min] min else if [x > max] max else x
 
-def main(?) = (
+def main(?) -> number = (
     for [0, height] -> j (
         for [0, width] -> i (
             def t = 0

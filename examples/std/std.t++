@@ -1,24 +1,24 @@
 # IO #
-def native("putchar") putchar(c)
-def native("printf") printf(format, ?)
-def native("readLine") readLine()
-def native("fopen") fopen(filename, modes)
-def native("fclose") fclose(stream)
-def native("fread") fread(ptr, size, count, stream)
-def native("fwrite") fwrite(ptr, size, count, stream)
-def native("fprintf") fprintf(stream, format, ?)
+def native("putchar") putchar(c) -> number
+def native("printf") printf(format, ?) -> number
+def native("fopen") fopen(filename, modes) -> object
+def native("fclose") fclose(stream) -> number
+def native("fread") fread(ptr, size, count, stream) -> number
+def native("fwrite") fwrite(ptr, size, count, stream) -> number
+def native("fprintf") fprintf(stream, format, ?) -> number
 
 # MATH #
-def native("sin") sin(x)
-def native("cos") cos(x)
-def native("floor") floor(x)
-def native("random") random()
-def native("sqrt") sqrt(x)
-def native("abs") abs(x)
+def native("sin") sin(x) -> number
+def native("cos") cos(x) -> number
+def native("floor") floor(x) -> number
+def native("sqrt") sqrt(x) -> number
+def native("abs") abs(x) -> number
 
-# TIME #
-def native("currentTimeMillis") millis()
+# OTHER #
+def native("random") random() -> number
+def native("millis") millis() -> number
+def native("readLine") readLine() -> string
 
 # TYPES #
-def native("number") number(x)
-def native("character") char(x)
+def native("number") number(x) -> number
+def native("character") char(x) -> char

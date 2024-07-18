@@ -2,14 +2,14 @@ include "interval.t++"
 include "hittable.t++"
 
 :sphere
-def new(center, radius, mat) = {
+def new(center, radius, mat) -> object = {
     type = 0,
     center = center,
     radius = radius,
     mat = mat
 }
 
-def hit(self, r, ray_t, rec) = (
+def hit(self, r, ray_t, rec) -> number = (
     def oc = vec3:sub(self.center, r.origin)
     def a = vec3:length_squared(r.direction)
     def h = vec3:dot(r.direction, oc)

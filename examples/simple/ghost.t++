@@ -1,8 +1,8 @@
 include "../std/std.t++"
 
-def randomInt(min, max) = floor(min + (max + 1 - min) * random())
+def randomInt(min, max) -> number = floor(min + (max + 1 - min) * random())
 
-def main(?) = (
+def main(?) -> number = (
     def running = 1
     def score = 0
 

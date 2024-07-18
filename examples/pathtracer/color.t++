@@ -3,15 +3,15 @@ include "interval.t++"
 :color
 def intensity = interval:new(0.000, 0.999)
 
-def linear_to_gamma(linear_component) =
+def linear_to_gamma(linear_component) -> number =
     if [linear_component > 0]
         sqrt(linear_component)
     else 0
 
-def int(self) = (
-    def r = color:linear_to_gamma(self[0])
-    def g = color:linear_to_gamma(self[1])
-    def b = color:linear_to_gamma(self[2])
+def int(self) -> number = (
+    def r = color:linear_to_gamma(self.x)
+    def g = color:linear_to_gamma(self.y)
+    def b = color:linear_to_gamma(self.z)
 
     def ir = floor(256 * interval:clamp(color:intensity, r))
     def ig = floor(256 * interval:clamp(color:intensity, g))

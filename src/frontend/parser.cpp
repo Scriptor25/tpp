@@ -361,6 +361,9 @@ tpp::ExprPtr tpp::Parser::ParseDef()
 		}
 		Expect(")");
 
+		std::string promise;
+		if (NextIfAt("->")) promise = Expect(TokenType_Id).Value;
+
 		ExprPtr body;
 		if (NextIfAt("="))
 		{
@@ -370,7 +373,7 @@ tpp::ExprPtr tpp::Parser::ParseDef()
 			m_InFunction = backup;
 		}
 
-		return std::make_shared<DefFunctionExpression>(location, native_name, name, arg_names, has_var_args, body);
+		return std::make_shared<DefFunctionExpression>(location, native_name, name, arg_names, has_var_args, promise, body);
 	}
 
 	if (NextIfAt("["))

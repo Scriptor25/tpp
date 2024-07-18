@@ -1,6 +1,6 @@
 include "../std/std.t++"
 
-def main(?) = (
+def main(?) -> number = (
 
     def a = {x = 0.5, y =  4.5}
     def b = {x = 1.0, y = -3.0}

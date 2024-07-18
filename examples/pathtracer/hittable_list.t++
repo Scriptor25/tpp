@@ -1,12 +1,12 @@
 include "hittable.t++"
 
 :hittable_list
-def new() = {
+def new() -> object = {
     type = 1,
     objects = []
 }
 
-def new(object) = {
+def new(object) -> object = {
     type = 1,
     objects = [object]
 }
@@ -21,7 +21,7 @@ def add(self, object) = (
     self.objects = tmp
 )
 
-def hit(self, r, ray_t, rec) = (
+def hit(self, r, ray_t, rec) -> number = (
     def temp_rec = {}
     def hit_anything = 0
     def closest_so_far = ray_t.max

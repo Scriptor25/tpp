@@ -19,12 +19,15 @@ namespace tpp
 
 	struct DefFunctionExpression : Expression
 	{
-		DefFunctionExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const std::vector<std::string> &arg_names, bool has_var_args, const ExprPtr &body);
+		DefFunctionExpression(
+			const SourceLocation &location, const std::string &native_name, const Name &name, const std::vector<std::string> &arg_names, bool has_var_args, const std::string &promise,
+			const ExprPtr &body);
 
 		std::string NativeName;
 		Name MName;
 		std::vector<std::string> ArgNames;
 		bool HasVarArgs;
+		std::string Promise;
 		ExprPtr Body;
 	};
 

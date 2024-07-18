@@ -2,7 +2,7 @@ include "std.t++"
 
 :image
 # Read Image #
-def read(filename)
+def read(self, filename)
 
 # Write Image #
 def write(self, filename) = (
@@ -21,7 +21,7 @@ def write(self, filename) = (
 )
 
 # Create Image #
-def new(width, height) = {
+def new(width, height) -> object = {
     width = width,
     height = height,
     pixels[width * height]
@@ -31,7 +31,7 @@ def new(width, height) = {
 def setPixel(self, x, y, color) = self.pixels[x + y * self.width] = color
 
 # Get Pixel #
-def getPixel(self, x, y) = self.pixels[x + y * self.width]
+def getPixel(self, x, y) -> number = self.pixels[x + y * self.width]
 
 # Set Pixels #
 def setPixels(self, pixels, x, y, width, height) =

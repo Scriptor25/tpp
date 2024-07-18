@@ -12,8 +12,8 @@ tpp::Expression::Expression(const SourceLocation &location) : Location(location)
 tpp::Expression::~Expression() = default;
 
 tpp::DefFunctionExpression::DefFunctionExpression(
-	const SourceLocation &location, const std::string &native_name, const Name &name, const std::vector<std::string> &arg_names, bool has_var_args, const ExprPtr &body)
-	: Expression(location), NativeName(native_name), MName(name), ArgNames(arg_names), HasVarArgs(has_var_args), Body(body)
+	const SourceLocation &location, const std::string &native_name, const Name &name, const std::vector<std::string> &arg_names, bool has_var_args, const std::string &promise, const ExprPtr &body)
+	: Expression(location), NativeName(native_name), MName(name), ArgNames(arg_names), HasVarArgs(has_var_args), Promise(promise), Body(body)
 {
 }
 
@@ -126,6 +126,7 @@ std::ostream &tpp::operator<<(std::ostream &out, const DefFunctionExpression &e)
 		out << '?';
 	}
 	out << ')';
+	if (!e.Promise.empty()) out << " -> " << e.Promise;
 	if (!e.Body) return out;
 	return out << " = " << e.Body;
 }
