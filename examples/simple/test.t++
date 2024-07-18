@@ -1,4 +1,4 @@
-include "../std/std.ttc"
+include "../std/std.t++"
 
 def main(?) = (
 

@@ -1,4 +1,4 @@
-include "common.ttc"
+include "common.t++"
 
 :interval
 def new() = {

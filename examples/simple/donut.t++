@@ -1,4 +1,4 @@
-include "../std/std.ttc"
+include "../std/std.t++"
 
 def pi = 3.141596
 def pi2 = 2 * pi

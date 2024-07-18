@@ -1,4 +1,4 @@
-include "interval.ttc"
+include "interval.t++"
 
 :color
 def intensity = interval:new(0.000, 0.999)

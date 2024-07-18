@@ -1,4 +1,4 @@
-include "../std/std.ttc"
+include "../std/std.t++"
 
 :vec3
 def new() = [0, 0, 0]

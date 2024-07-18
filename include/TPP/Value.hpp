@@ -1,9 +1,7 @@
 #pragma once
 
-#include "TPP/SourceLocation.hpp"
 #include <TPP/TPP.hpp>
 #include <map>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -13,54 +11,76 @@ namespace tpp
 	{
 		virtual ~ValueBase();
 
-		virtual std::shared_ptr<Type> GetType(const SourceLocation &location);
+		virtual TypePtr GetType() = 0;
 
 		virtual bool GetBool();
 		virtual int GetInt();
 		virtual double GetDouble();
 
-		virtual std::shared_ptr<ValueBase> GetAt(const SourceLocation &location, int index);
+		virtual ValPtr GetAt(int index);
 
-		virtual std::shared_ptr<ValueBase> GetField(const SourceLocation &location, const std::string &name);
+		virtual ValPtr GetField(const std::string &name);
 	};
 
-	template <typename T>
-	struct Value : ValueBase
+	struct NumberValue : ValueBase
 	{
-		Value(const T &content) : Content(content) {}
+		NumberValue(double content);
 
-		T Content;
-	};
-
-	template <>
-	struct Value<double> : ValueBase
-	{
-		Value(double content);
+		TypePtr GetType() override;
 
 		bool GetBool() override;
+		int GetInt() override;
 		double GetDouble() override;
 
 		double Content;
 	};
 
+	struct CharValue : ValueBase
+	{
+		CharValue(char content);
+
+		TypePtr GetType() override;
+
+		bool GetBool() override;
+		int GetInt() override;
+		double GetDouble() override;
+
+		char Content;
+	};
+
+	struct StringValue : ValueBase
+	{
+		StringValue(const std::string &content);
+
+		TypePtr GetType() override;
+
+		bool GetBool() override;
+
+		std::string Content;
+	};
+
 	struct ArrayValue : ValueBase
 	{
-		ArrayValue(const SourceLocation &location, const std::vector<std::shared_ptr<ValueBase>> &values);
+		ArrayValue(const std::vector<ValPtr> &content);
+
+		TypePtr GetType() override;
+
+		bool GetBool() override;
+
+		std::vector<ValPtr> Content;
 	};
 
 	struct ObjectValue : ValueBase
 	{
-		ObjectValue(const SourceLocation &location, const std::map<std::string, std::shared_ptr<ValueBase>> &fields);
-	};
+		ObjectValue(const std::map<std::string, ValPtr> &content);
 
-	struct FunctionValue : ValueBase
-	{
-		std::shared_ptr<class Function> MFunction;
+		TypePtr GetType() override;
+
+		bool GetBool() override;
+
+		std::map<std::string, ValPtr> Content;
 	};
 
 	template <typename T>
-	std::shared_ptr<Value<T>> CreateValue(const T &content)
-	{
-		return std::make_shared<Value<T>>(content);
-	}
+	tpp::ValPtr CreateValue(const T &content);
 }

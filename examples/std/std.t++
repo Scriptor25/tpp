@@ -1,24 +1,24 @@
 # IO #
-def native("io.scriptor.TitanCode.putchar") putchar(c)
-def native("io.scriptor.TitanCode.printf") printf(format, ?)
-def native("io.scriptor.TitanCode.readLine") readLine()
-def native("io.scriptor.TitanCode.fopen") fopen(filename, flags)
-def native("io.scriptor.TitanCode.fclose") fclose(filename)
-def native("io.scriptor.TitanCode.fread") fread(filename)
-def native("io.scriptor.TitanCode.fwrite") fwrite(filename, x)
-def native("io.scriptor.TitanCode.fprintf") fprintf(filename, format, ?)
+def native("putchar") putchar(c)
+def native("printf") printf(format, ?)
+def native("readLine") readLine()
+def native("fopen") fopen(filename, flags)
+def native("fclose") fclose(filename)
+def native("fread") fread(filename)
+def native("fwrite") fwrite(filename, x)
+def native("fprintf") fprintf(filename, format, ?)
 
 # MATH #
-def native("java.lang.Math.sin") sin(x)
-def native("java.lang.Math.cos") cos(x)
-def native("java.lang.Math.floor") floor(x)
-def native("java.lang.Math.random") random()
-def native("java.lang.Math.sqrt") sqrt(x)
-def native("java.lang.Math.abs") abs(x)
+def native("sin") sin(x)
+def native("cos") cos(x)
+def native("floor") floor(x)
+def native("random") random()
+def native("sqrt") sqrt(x)
+def native("abs") abs(x)
 
 # TIME #
-def native("java.lang.System.currentTimeMillis") millis()
+def native("currentTimeMillis") millis()
 
 # TYPES #
-def native("io.scriptor.TitanCode.number") number(x)
-def native("io.scriptor.TitanCode.character") char(x)
+def native("number") number(x)
+def native("character") char(x)

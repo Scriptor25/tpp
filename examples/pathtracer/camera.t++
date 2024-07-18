@@ -1,9 +1,9 @@
-include "color.ttc"
-include "hittable.ttc"
-include "interval.ttc"
-include "material.ttc"
-include "ray.ttc"
-include "vec3.ttc"
+include "color.t++"
+include "hittable.t++"
+include "interval.t++"
+include "material.t++"
+include "ray.t++"
+include "vec3.t++"
 
 :camera
 def new() = {

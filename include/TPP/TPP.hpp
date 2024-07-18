@@ -14,7 +14,11 @@ namespace tpp
 	class Environment;
 	struct UnOpInfo;
 	struct ValueBase;
-	struct Type;
+	class Type;
+	struct Function;
 
 	typedef std::shared_ptr<Expression> ExprPtr;
+	typedef std::shared_ptr<ValueBase> ValPtr;
+	typedef std::shared_ptr<Type> TypePtr;
+	typedef std::shared_ptr<Function> FunPtr;
 }

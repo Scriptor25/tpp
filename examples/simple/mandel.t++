@@ -1,4 +1,4 @@
-include "../std/std.ttc"
+include "../std/std.t++"
 
 def width = 80
 def height = 40

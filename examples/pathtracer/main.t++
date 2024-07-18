@@ -1,15 +1,15 @@
-include "../std/image.ttc"
-include "../std/std.ttc"
+include "../std/image.t++"
+include "../std/std.t++"
 
-include "camera.ttc"
-include "color.ttc"
-include "common.ttc"
-include "hittable.ttc"
-include "hittable_list.ttc"
-include "interval.ttc"
-include "ray.ttc"
-include "sphere.ttc"
-include "vec3.ttc"
+include "camera.t++"
+include "color.t++"
+include "common.t++"
+include "hittable.t++"
+include "hittable_list.t++"
+include "interval.t++"
+include "ray.t++"
+include "sphere.t++"
+include "vec3.t++"
 
 def main(?) = (
 

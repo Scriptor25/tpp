@@ -1,5 +1,5 @@
-include "interval.ttc"
-include "hittable.ttc"
+include "interval.t++"
+include "hittable.t++"
 
 :sphere
 def new(center, radius, mat) = {

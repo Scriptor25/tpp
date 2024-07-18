@@ -1,6 +1,8 @@
 #include <TPP/Expression.hpp>
 #include <TPP/Parser.hpp>
 #include <fstream>
+#include <memory>
+#include <stdexcept>
 
 std::map<std::string, unsigned> tpp::Parser::PRECEDENCES = {
 	{ "=", 0 },	 { "<<=", 0 }, { ">>=", 0 }, { ">>>=", 0 }, { "+=", 0 },  { "-=", 0 }, { "*=", 0 }, { "/=", 0 }, { "%=", 0 }, { "&=", 0 },
@@ -14,6 +16,7 @@ void tpp::Parser::ParseFile(const std::filesystem::path &filepath, std::vector<s
 	parsed.push_back(filepath);
 
 	std::ifstream stream(filepath);
+	if (!stream.is_open()) throw std::runtime_error("failed to open file");
 	Parser parser(stream, filepath, parsed, callback);
 	for (ExprPtr expression; (expression = parser.GetNext());) { callback(expression); }
 }
@@ -228,7 +231,7 @@ tpp::Token &tpp::Parser::Next()
 	return m_Token = {};
 }
 
-bool tpp::Parser::AtEOF() { return m_Token.Type == TokenType_; }
+bool tpp::Parser::AtEOF() { return !m_Token.Type; }
 
 bool tpp::Parser::At(const TokenType type) { return m_Token.Type == type; }
 
@@ -483,7 +486,8 @@ tpp::ExprPtr tpp::Parser::ParseCall()
 			if (!At(")")) Expect(",");
 		}
 
-		callee = std::make_shared<CallExpression>(callee->Location, callee, args);
+		auto name = std::dynamic_pointer_cast<IDExpression>(callee)->MName;
+		callee = std::make_shared<CallExpression>(callee->Location, name, args);
 	}
 
 	return callee;

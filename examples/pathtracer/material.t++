@@ -1,4 +1,4 @@
-include "ray.ttc"
+include "ray.t++"
 
 :lambertian
 def new(albedo) = {

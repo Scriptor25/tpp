@@ -1,4 +1,4 @@
-include "vec3.ttc"
+include "vec3.t++"
 
 :hit_record
 def new() = {

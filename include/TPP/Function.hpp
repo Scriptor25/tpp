@@ -4,19 +4,20 @@
 #include <TPP/Name.hpp>
 #include <TPP/SourceLocation.hpp>
 #include <TPP/Value.hpp>
-#include <memory>
 #include <vector>
 
 namespace tpp
 {
 	struct Function
 	{
-		SourceLocation GetLocation();
-		Name GetName();
-		size_t GetArgCount();
-		bool HasVarArgs();
-		bool IsComplete();
+		virtual ~Function();
 
-		std::shared_ptr<ValueBase> Call(Environment &parent, const std::vector<std::shared_ptr<ValueBase>> &args);
+		virtual SourceLocation GetLocation() = 0;
+		virtual Name GetName() = 0;
+		virtual size_t GetArgCount() = 0;
+		virtual bool HasVarArgs() = 0;
+		virtual bool IsComplete() = 0;
+
+		virtual ValPtr Call(Environment &parent, const std::vector<ValPtr> &args) = 0;
 	};
 }

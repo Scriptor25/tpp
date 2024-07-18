@@ -1,4 +1,4 @@
-include "std.ttc"
+include "std.t++"
 
 :image
 # Read Image #

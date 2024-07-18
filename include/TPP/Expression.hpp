@@ -1,9 +1,9 @@
 #pragma once
 
-#include "TPP/Value.hpp"
 #include <TPP/Name.hpp>
 #include <TPP/SourceLocation.hpp>
 #include <TPP/TPP.hpp>
+#include <TPP/Value.hpp>
 #include <map>
 #include <string>
 #include <vector>
@@ -12,11 +12,11 @@ namespace tpp
 {
 	struct Expression : std::enable_shared_from_this<Expression>
 	{
-		Expression(const SourceLocation &location);
+		explicit Expression(const SourceLocation &location);
 		virtual ~Expression();
 
 		virtual ExprPtr MakeConstant();
-		virtual std::shared_ptr<ValueBase> Evaluate(Environment &env) = 0;
+		virtual ValPtr Evaluate(Environment &env) = 0;
 
 		SourceLocation Location;
 	};
@@ -25,7 +25,7 @@ namespace tpp
 	{
 		DefFunctionExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const std::vector<std::string> &arg_names, bool has_var_args, const ExprPtr &body);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		std::string NativeName;
 		Name MName;
@@ -39,7 +39,7 @@ namespace tpp
 		DefVariableExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const ExprPtr &init);
 		DefVariableExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const ExprPtr &size, const ExprPtr &init);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		std::string NativeName;
 		Name MName;
@@ -51,7 +51,7 @@ namespace tpp
 	{
 		ForExpression(const SourceLocation &location, const ExprPtr &from, const ExprPtr &to, const ExprPtr &step, const std::string &id, const ExprPtr &body);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		ExprPtr From;
 		ExprPtr To;
@@ -64,7 +64,7 @@ namespace tpp
 	{
 		WhileExpression(const SourceLocation &location, const ExprPtr &condition, const ExprPtr &body);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		ExprPtr Condition;
 		ExprPtr Body;
@@ -74,7 +74,7 @@ namespace tpp
 	{
 		IfExpression(const SourceLocation &location, const ExprPtr &condition, const ExprPtr &branchTrue, const ExprPtr &branchFalse);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		ExprPtr Condition;
 		ExprPtr BranchTrue;
@@ -85,7 +85,7 @@ namespace tpp
 	{
 		GroupExpression(const SourceLocation &location, const std::vector<ExprPtr> &body);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		std::vector<ExprPtr> Body;
 	};
@@ -94,7 +94,7 @@ namespace tpp
 	{
 		BinaryExpression(const SourceLocation &location, const std::string &op, const ExprPtr &lhs, const ExprPtr &rhs);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		std::string Operator;
 		ExprPtr Lhs;
@@ -103,11 +103,11 @@ namespace tpp
 
 	struct CallExpression : Expression
 	{
-		CallExpression(const SourceLocation &location, const ExprPtr &callee, const std::vector<ExprPtr> &args);
+		CallExpression(const SourceLocation &location, const Name &callee, const std::vector<ExprPtr> &args);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
-		std::shared_ptr<FunctionValue> Callee;
+		FunPtr &Callee;
 		std::vector<ExprPtr> Args;
 	};
 
@@ -115,7 +115,7 @@ namespace tpp
 	{
 		IndexExpression(const SourceLocation &location, const ExprPtr &array, const ExprPtr &index);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		ExprPtr Array;
 		ExprPtr Index;
@@ -125,7 +125,7 @@ namespace tpp
 	{
 		MemberExpression(const SourceLocation &location, const ExprPtr &object, const std::string &member);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		ExprPtr Object;
 		std::string Member;
@@ -135,7 +135,7 @@ namespace tpp
 	{
 		IDExpression(const SourceLocation &location, const Name &name);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		Name MName;
 	};
@@ -144,7 +144,7 @@ namespace tpp
 	{
 		NumberExpression(const SourceLocation &location, const std::string &value);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		double Value;
 	};
@@ -153,7 +153,7 @@ namespace tpp
 	{
 		CharExpression(const SourceLocation &location, const std::string &value);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		char Value;
 	};
@@ -162,23 +162,23 @@ namespace tpp
 	{
 		StringExpression(const SourceLocation &location, const std::string &value);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		std::string Value;
 	};
 
 	struct VarArgsExpression : Expression
 	{
-		VarArgsExpression(const SourceLocation &location);
+		explicit VarArgsExpression(const SourceLocation &location);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 	};
 
 	struct UnaryExpression : Expression
 	{
 		UnaryExpression(const SourceLocation &location, const std::string &op, const ExprPtr &operand);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		std::string Operator;
 		ExprPtr Operand;
@@ -188,7 +188,7 @@ namespace tpp
 	{
 		SizedArrayExpression(const SourceLocation &location, const ExprPtr &size, const ExprPtr &init);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		ExprPtr Size;
 		ExprPtr Init;
@@ -198,7 +198,7 @@ namespace tpp
 	{
 		ObjectExpression(const SourceLocation &location, const std::map<std::string, ExprPtr> &fields);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		std::map<std::string, ExprPtr> Fields;
 	};
@@ -207,7 +207,7 @@ namespace tpp
 	{
 		ArrayExpression(const SourceLocation &location, const std::vector<ExprPtr> &values);
 
-		std::shared_ptr<ValueBase> Evaluate(Environment &env) override;
+		ValPtr Evaluate(Environment &env) override;
 
 		std::vector<ExprPtr> Values;
 	};

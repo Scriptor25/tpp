@@ -1,7 +1,6 @@
 #pragma once
 
 #include <TPP/Name.hpp>
-#include <TPP/SourceLocation.hpp>
 #include <TPP/TPP.hpp>
 #include <TPP/Value.hpp>
 #include <functional>
@@ -13,30 +12,33 @@ namespace tpp
 {
 	struct UnOpInfo
 	{
-		std::function<std::shared_ptr<ValueBase>(std::shared_ptr<ValueBase> value)> Operator;
-		std::shared_ptr<Type> Result;
+		std::function<ValPtr(ValPtr value)> Operator;
+		TypePtr Result;
 		bool Reassign;
 	};
 
 	class Environment
 	{
 	public:
-		static std::shared_ptr<FunctionValue> GetFunction(const SourceLocation &location, const Name &name, size_t arg_count);
-		static UnOpInfo GetUnaryOperator(const SourceLocation &location, const std::string &op, const std::shared_ptr<Type> type);
+		static FunPtr &GetFunction(const Name &name, size_t arg_count);
+		static UnOpInfo GetUnaryOperator(const std::string &op, const TypePtr type);
+
+	private:
+		static std::map<Name, std::map<int, FunPtr>> FUNCTIONS;
 
 	public:
 		Environment();
-		Environment(Environment &parent);
-		Environment(Environment &parent, const std::vector<std::shared_ptr<ValueBase>> &varargs);
+		explicit Environment(Environment &parent);
+		Environment(Environment &parent, const std::vector<ValPtr> &varargs);
 
 		Environment &GetGlobal();
-		std::shared_ptr<ArrayValue> GetVarArgs(const SourceLocation &location);
+		std::shared_ptr<ArrayValue> GetVarArgs();
 
-		void DefineVariable(const SourceLocation &location, const Name &name, const std::shared_ptr<ValueBase> &value);
-		std::shared_ptr<ValueBase> &GetVariable(const SourceLocation &location, const Name &name);
+		void DefineVariable(const Name &name, const ValPtr &value);
+		ValPtr &GetVariable(const Name &name);
 
 		template <typename T>
-		T Call(const Name &name, const std::vector<std::shared_ptr<ValueBase>> &args)
+		T Call(const Name &name, const std::vector<ValPtr> &args)
 		{
 			return {};
 		}
@@ -44,7 +46,7 @@ namespace tpp
 	private:
 		Environment *m_Parent;
 		Environment *m_Global;
-		std::vector<std::shared_ptr<ValueBase>> m_VarArgs;
-		std::map<Name, std::shared_ptr<ValueBase>> m_Variables;
+		std::vector<ValPtr> m_VarArgs;
+		std::map<Name, ValPtr> m_Variables;
 	};
 }
