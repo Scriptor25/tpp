@@ -1,7 +1,8 @@
+#include <TPP/Backend/Builder.hpp>
 #include <TPP/Frontend/Expression.hpp>
+#include <TPP/Frontend/Frontend.hpp>
 #include <TPP/Frontend/Name.hpp>
 #include <TPP/Frontend/Parser.hpp>
-#include <TPP/Frontend/TPP.hpp>
 #include <iostream>
 
 int main(const int argc, const char **argv)
@@ -13,6 +14,13 @@ int main(const int argc, const char **argv)
 	}
 
 	const std::string filename = argv[1];
+	tpp::Builder builder;
 
-	tpp::Parser::ParseFile(filename, [](const tpp::ExprPtr expression) { std::cout << expression << std::endl; });
+	tpp::Parser::ParseFile(
+		filename,
+		[&builder](const tpp::ExprPtr &ptr)
+		{
+			std::cout << ptr << std::endl;
+			// builder.GenIR(ptr);
+		});
 }

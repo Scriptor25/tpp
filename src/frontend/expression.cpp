@@ -1,7 +1,7 @@
 #include <TPP/Frontend/Expression.hpp>
 #include <TPP/Frontend/SourceLocation.hpp>
+#include <TPP/Frontend/Type.hpp>
 #include <functional>
-#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -11,19 +11,15 @@ tpp::Expression::Expression(const SourceLocation &location) : Location(location)
 
 tpp::Expression::~Expression() = default;
 
-tpp::DefFunctionExpression::DefFunctionExpression(
-	const SourceLocation &location, const std::string &native_name, const Name &name, const std::vector<std::string> &arg_names, bool has_var_args, const std::string &promise, const ExprPtr &body)
-	: Expression(location), NativeName(native_name), MName(name), ArgNames(arg_names), HasVarArgs(has_var_args), Promise(promise), Body(body)
+tpp::DefStructExpression::DefStructExpression(const SourceLocation &location, const Name &name, const std::vector<StructField> &fields) : Expression(location), MName(name), Fields(fields) {}
+
+tpp::DefFunctionExpression::DefFunctionExpression(const SourceLocation &location, const TypePtr &result, const Name &name, const std::vector<Arg> &args, bool var_arg, const ExprPtr &body)
+	: Expression(location), Result(result), MName(name), Args(args), VarArg(var_arg), Body(body)
 {
 }
 
-tpp::DefVariableExpression::DefVariableExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const ExprPtr &init)
-	: Expression(location), NativeName(native_name), MName(name), Init(init)
-{
-}
-
-tpp::DefVariableExpression::DefVariableExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const ExprPtr &size, const ExprPtr &init)
-	: Expression(location), NativeName(native_name), MName(name), Size(size), Init(init)
+tpp::DefVariableExpression::DefVariableExpression(const SourceLocation &location, const TypePtr &type, const Name &name, const ExprPtr &size, const ExprPtr &init)
+	: Expression(location), MType(type), MName(name), Size(size), Init(init)
 {
 }
 
@@ -61,16 +57,15 @@ tpp::VarArgsExpression::VarArgsExpression(const SourceLocation &location) : Expr
 
 tpp::UnaryExpression::UnaryExpression(const SourceLocation &location, const std::string &op, const ExprPtr &operand) : Expression(location), Operator(op), Operand(operand) {}
 
-tpp::SizedArrayExpression::SizedArrayExpression(const SourceLocation &location, const ExprPtr &size, const ExprPtr &init) : Expression(location), Size(size), Init(init) {}
+tpp::ObjectExpression::ObjectExpression(const SourceLocation &location, const std::vector<ExprPtr> &init) : Expression(location), Init(init) {}
 
-tpp::ObjectExpression::ObjectExpression(const SourceLocation &location, const std::map<std::string, ExprPtr> &fields) : Expression(location), Fields(fields) {}
-
-tpp::ArrayExpression::ArrayExpression(const SourceLocation &location, const std::vector<ExprPtr> &values) : Expression(location), Values(values) {}
+tpp::ArrayExpression::ArrayExpression(const SourceLocation &location, const ExprPtr &size, const ExprPtr &init) : Expression(location), Size(size), Init(init) {}
 
 std::ostream &tpp::operator<<(std::ostream &out, const ExprPtr &ptr)
 {
 	if (!ptr) return out << "<null>";
 
+	if (auto p = std::dynamic_pointer_cast<DefStructExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<DefFunctionExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<DefVariableExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<ForExpression>(ptr)) return out << *p;
@@ -87,7 +82,6 @@ std::ostream &tpp::operator<<(std::ostream &out, const ExprPtr &ptr)
 	if (auto p = std::dynamic_pointer_cast<StringExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<VarArgsExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<UnaryExpression>(ptr)) return out << *p;
-	if (auto p = std::dynamic_pointer_cast<SizedArrayExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<ObjectExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<ArrayExpression>(ptr)) return out << *p;
 	throw std::runtime_error("TODO");
@@ -110,23 +104,41 @@ static std::string replace(const std::string &str, const std::function<bool(char
 	return cpy;
 }
 
+std::ostream &tpp::operator<<(std::ostream &out, const DefStructExpression &e)
+{
+	out << "def " << e.MName << " {";
+	if (e.Fields.empty()) return out << '}';
+
+	++depth;
+	auto spaces = get_spaces();
+
+	for (size_t i = 0; i < e.Fields.size(); ++i)
+	{
+		if (i > 0) out << ',';
+		out << std::endl << spaces << e.Fields[i];
+	}
+
+	--depth;
+	spaces = get_spaces();
+	return out << std::endl << spaces << '}';
+}
+
 std::ostream &tpp::operator<<(std::ostream &out, const DefFunctionExpression &e)
 {
 	out << "def ";
-	if (!e.NativeName.empty()) out << "native(\"" << e.NativeName << "\") ";
-	out << e.MName.Str << '(';
-	for (int i = 0; i < e.ArgNames.size(); ++i)
+	if (e.Result) out << e.Result << ' ';
+	out << e.MName << '(';
+	for (size_t i = 0; i < e.Args.size(); ++i)
 	{
 		if (i > 0) out << ", ";
-		out << e.ArgNames[i];
+		out << e.Args[i];
 	}
-	if (e.HasVarArgs)
+	if (e.VarArg)
 	{
-		if (!e.ArgNames.empty()) out << ", ";
+		if (!e.Args.empty()) out << ", ";
 		out << '?';
 	}
 	out << ')';
-	if (!e.Promise.empty()) out << " -> " << e.Promise;
 	if (!e.Body) return out;
 	return out << " = " << e.Body;
 }
@@ -134,11 +146,11 @@ std::ostream &tpp::operator<<(std::ostream &out, const DefFunctionExpression &e)
 std::ostream &tpp::operator<<(std::ostream &out, const DefVariableExpression &e)
 {
 	out << "def ";
-	if (!e.NativeName.empty()) out << "native(\"" << e.NativeName << "\") ";
-	out << e.MName.Str;
+	if (e.MType) out << e.MType << ' ';
+	out << e.MName;
 	if (e.Size) out << '[' << e.Size << ']';
-	if (!e.Init) return out;
-	return out << " = " << e.Init;
+	if (e.Init) out << " = " << e.Init;
+	return out;
 }
 
 std::ostream &tpp::operator<<(std::ostream &out, const ForExpression &e)
@@ -176,7 +188,7 @@ std::ostream &tpp::operator<<(std::ostream &out, const BinaryExpression &e) { re
 
 std::ostream &tpp::operator<<(std::ostream &out, const CallExpression &e)
 {
-	out << e.Callee.Str << '(';
+	out << e.Callee << '(';
 	for (size_t i = 0; i < e.Args.size(); ++i)
 	{
 		if (i > 0) out << ", ";
@@ -189,54 +201,35 @@ std::ostream &tpp::operator<<(std::ostream &out, const IndexExpression &e) { ret
 
 std::ostream &tpp::operator<<(std::ostream &out, const MemberExpression &e) { return out << e.Object << '.' << e.Member; }
 
-std::ostream &tpp::operator<<(std::ostream &out, const IDExpression &e) { return out << e.MName.Str; }
+std::ostream &tpp::operator<<(std::ostream &out, const IDExpression &e) { return out << e.MName; }
 
 std::ostream &tpp::operator<<(std::ostream &out, const NumberExpression &e) { return out << e.Value; }
 
-std::ostream &tpp::operator<<(std::ostream &out, const CharExpression &e) { return out << '\'' << (char) (e.Value > 0x20 ? e.Value : 0) << '\''; }
+std::ostream &tpp::operator<<(std::ostream &out, const CharExpression &e) { return out << '\'' << (char) (e.Value < 0x20 ? 0 : e.Value) << '\''; }
 
 std::ostream &tpp::operator<<(std::ostream &out, const StringExpression &e)
 {
-	return out << '"' << replace(e.Value, [](char c) { return c <= 0x20; }, 0) << '"';
+	return out << '"' << replace(e.Value, [](char c) { return c < 0x20; }, 0) << '"';
 }
 
 std::ostream &tpp::operator<<(std::ostream &out, const VarArgsExpression &e) { return out << '?'; }
 
 std::ostream &tpp::operator<<(std::ostream &out, const UnaryExpression &e) { return out << e.Operator << e.Operand; }
 
-std::ostream &tpp::operator<<(std::ostream &out, const SizedArrayExpression &e)
-{
-	out << '[' << e.Size << ']';
-	if (!e.Init) return out;
-	return out << " = " << e.Init;
-}
-
 std::ostream &tpp::operator<<(std::ostream &out, const ObjectExpression &e)
 {
-	if (e.Fields.empty()) return out << "{}";
-	if (e.Fields.size() == 1) return out << '{' << e.Fields.begin()->second << '}';
-
 	out << '{';
-	++depth;
-	auto spaces = get_spaces();
-	size_t i = 0;
-	for (const auto &[name, init] : e.Fields)
+	for (size_t i = 0; i < e.Init.size(); ++i)
 	{
-		if (i++ > 0) out << ',';
-		out << std::endl << spaces << name << " = " << init;
+		if (i > 0) out << ", ";
+		out << e.Init[i];
 	}
-	--depth;
-	spaces = get_spaces();
-	return out << std::endl << spaces << '}';
+	return out << '}';
 }
 
 std::ostream &tpp::operator<<(std::ostream &out, const ArrayExpression &e)
 {
-	out << "[ ";
-	for (size_t i = 0; i < e.Values.size(); ++i)
-	{
-		if (i > 0) out << ", ";
-		out << e.Values[i];
-	}
-	return out << " ]";
+	out << '[' << e.Size;
+	if (e.Init) out << ", " << e.Init;
+	return out << ']';
 }

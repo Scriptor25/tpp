@@ -1,10 +1,10 @@
 include "../std/std.t++"
 
-def randomInt(min, max) -> number = floor(min + (max + 1 - min) * random())
+def i32 randomInt(i32 min, i32 max) = min + (max + 1 - min) * random()
 
-def main(?) -> number = (
-    def running = 1
-    def score = 0
+def i32 main([[i8]] args) = (
+    def i1 running = 1
+    def i32 score = 0
 
     while [running] (
         def ghost_door = randomInt(1, 3)
@@ -15,7 +15,7 @@ def main(?) -> number = (
             door = readLine()
         )
         
-        def door_num = number(door)
+        def door_num = atoi(door)
 
         if [door_num == ghost_door] (
             printf("Ghost!\n")
@@ -27,6 +27,6 @@ def main(?) -> number = (
         )
     )
 
-    printf("Game Over.\nYour score: %.0f\n", score)
+    printf("Game Over.\nYour score: %d\n", score)
     0
 )

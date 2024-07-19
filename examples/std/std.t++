@@ -1,24 +1,21 @@
 # IO #
-def native("putchar") putchar(c) -> number
-def native("printf") printf(format, ?) -> number
-def native("fopen") fopen(filename, modes) -> object
-def native("fclose") fclose(stream) -> number
-def native("fread") fread(ptr, size, count, stream) -> number
-def native("fwrite") fwrite(ptr, size, count, stream) -> number
-def native("fprintf") fprintf(stream, format, ?) -> number
+def FILE {}
+
+def i32 putchar(i8 c)
+def i32 printf([i8] format, ?)
+def [FILE] fopen([i8] filename, [i8] modes)
+def i32 fclose([FILE] stream)
+def i32 fread([void] ptr, i64 size, i64 count, [FILE] stream)
+def i32 fwrite([void] ptr, i64 size, i64 count, [FILE] stream)
+def i32 fprintf([FILE] stream, [i8] format, ?)
 
 # MATH #
-def native("sin") sin(x) -> number
-def native("cos") cos(x) -> number
-def native("floor") floor(x) -> number
-def native("sqrt") sqrt(x) -> number
-def native("abs") abs(x) -> number
+def f64 sin(f64 x)
+def f64 cos(f64 x)
+def f64 floor(f64 x)
+def f64 sqrt(f64 x)
+def f64 abs(f64 x)
 
 # OTHER #
-def native("random") random() -> number
-def native("millis") millis() -> number
-def native("readLine") readLine() -> string
-
-# TYPES #
-def native("number") number(x) -> number
-def native("character") char(x) -> char
+def f64 random()
+def f64 millis()

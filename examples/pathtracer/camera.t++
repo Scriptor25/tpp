@@ -5,32 +5,34 @@ include "material.t++"
 include "ray.t++"
 include "vec3.t++"
 
-:camera
-def new() -> object = {
+def camera {
     # public #
-    aspect_ratio = 1,
-    image_width = 100,
-    samples_per_pixel = 10,
-    max_depth = 10,
+    f64 aspect_ratio = 1,
+    i32 image_width = 100,
+    i32 samples_per_pixel = 10,
+    i32 max_depth = 10,
 
     # private #
-    image_height = 0,
-    pixel_samples_scale = 0,
-    center = vec3:new(),
-    pixel00_loc = vec3:new(),
-    pixel_delta_u = vec3:new(),
-    pixel_delta_v = vec3:new()
+    i32 image_height,
+    f64 pixel_samples_scale,
+    [f64] center,
+    [f64] pixel00_loc,
+    [f64] pixel_delta_u,
+    [f64] pixel_delta_v
 }
 
-def initialize(self) = (
-    self.image_height = floor(self.image_width / self.aspect_ratio)
+:camera
+def camera new() = {}
+
+def initialize(camera self) = (
+    self.image_height = self.image_width / self.aspect_ratio
     self.image_height = if [self.image_height < 1] 1 else self.image_height
 
-    self.pixel_samples_scale = 1 / self.samples_per_pixel
+    self.pixel_samples_scale = 1.0 / self.samples_per_pixel
 
-    def focal_length = 1
-    def viewport_height = 2
-    def viewport_width = viewport_height * (self.image_width / self.image_height)
+    def f64 focal_length = 1
+    def f64 viewport_height = 2
+    def f64 viewport_width = viewport_height * (self.image_width / self.image_height)
 
     def viewport_u = vec3:new(viewport_width, 0, 0)
     def viewport_v = vec3:new(0, -viewport_height, 0)
@@ -42,9 +44,9 @@ def initialize(self) = (
     self.pixel00_loc = vec3:add(viewport_upper_left, vec3:nmul(0.5, vec3:add(self.pixel_delta_u, self.pixel_delta_v)))
 )
 
-def sample_square() -> object = vec3:new(random() - 0.5, random() - 0.5, 0)
+def [f64] sample_square() = vec3:new(random() - 0.5, random() - 0.5, 0)
 
-def get_ray(self, i, j) -> object = (
+def ray get_ray(camera self, i32 i, i32 j) = (
     def offset = camera:sample_square()
     def pixel_sample = vec3:add(vec3:add(self.pixel00_loc, vec3:nmul(i + offset.x, self.pixel_delta_u)), vec3:nmul(j + offset.y, self.pixel_delta_v))
 
@@ -54,20 +56,20 @@ def get_ray(self, i, j) -> object = (
     ray:new(ray_origin, ray_direction)
 )
 
-def ray_color(self, r, depth, world) -> object = (
+def [f64] ray_color(camera self, ray r, i32 depth, hittable world) = (
     if [depth > 0] (
-        def rec = hit_record:new()
+        def hit_record rec
 
         if [hittable:hit(world, r, interval:new(0.001, infinity), rec)] (
-            def scattered = ray:new()
-            def attenuation = vec3:new()
+            def ray scattered
+            def [f64] attenuation
             if [material:scatter(rec.mat, r, rec, attenuation, scattered)]
                 vec3:mul(attenuation, camera:ray_color(self, scattered, depth - 1, world))
             else vec3:new(0, 0, 0)
         )
         else (
             def unit_direction = vec3:unit_vector(r.direction)
-            def a = 0.5 * (unit_direction.y + 1)
+            def f64 a = 0.5 * (unit_direction.y + 1)
             vec3:add(vec3:nmul(1 - a, vec3:new(1, 1, 1)), vec3:nmul(a, vec3:new(0.5, 0.7, 1)))
         )
     ) else (

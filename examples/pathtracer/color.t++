@@ -3,19 +3,19 @@ include "interval.t++"
 :color
 def intensity = interval:new(0.000, 0.999)
 
-def linear_to_gamma(linear_component) -> number =
+def f64 linear_to_gamma(f64 linear_component) =
     if [linear_component > 0]
         sqrt(linear_component)
     else 0
 
-def int(self) -> number = (
+def i32 int(vec3 self) = (
     def r = color:linear_to_gamma(self.x)
     def g = color:linear_to_gamma(self.y)
     def b = color:linear_to_gamma(self.z)
 
-    def ir = floor(256 * interval:clamp(color:intensity, r))
-    def ig = floor(256 * interval:clamp(color:intensity, g))
-    def ib = floor(256 * interval:clamp(color:intensity, b))
+    def i8 ir = 256 * interval:clamp(color:intensity, r)
+    def i8 ig = 256 * interval:clamp(color:intensity, g)
+    def i8 ib = 256 * interval:clamp(color:intensity, b)
 
     (ir & 255) << 16 | (ig & 255) << 8 | (ib & 255)
 )

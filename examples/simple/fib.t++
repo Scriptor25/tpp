@@ -1,9 +1,9 @@
 include "../std/std.t++"
 
 # fibonacci #
-def fib(n) -> number = (
-    def a1 = 1
-    def a2 = 0
+def i32 fib(i32 n) = (
+    def i32 a1 = 1
+    def i32 a2 = 0
     for [0, n - 1] (
         def b = a1 + a2
         a2 = a1
@@ -11,14 +11,14 @@ def fib(n) -> number = (
     )
 )
 
-def N = 10
+def i32 N = 10
 
 # entry point #
-def main(?) -> number = (
-    for [0, ?.size] -> i
-        printf("%5.0f | %s\n", i, ?[i])
+def i32 main([[i8]] args) = (
+    for [0, args.size] -> i
+        printf("%5d | %s\n", i, args[i])
 
     def fibN = fib(N)
-    printf("fib(%.0f) = %.0f\n", N, fibN)
+    printf("fib(%d) = %d\n", N, fibN)
     0
 )

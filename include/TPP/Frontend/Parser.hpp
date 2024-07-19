@@ -1,7 +1,7 @@
 #pragma once
 
+#include <TPP/Frontend/Frontend.hpp>
 #include <TPP/Frontend/Name.hpp>
-#include <TPP/Frontend/TPP.hpp>
 #include <TPP/Frontend/Token.hpp>
 #include <filesystem>
 #include <functional>
@@ -57,7 +57,8 @@ namespace tpp
 		void ParseInclude();
 		void ParseNamespace();
 
-		Name ParseName(bool inherit = false);
+		Name ParseName();
+		TypePtr ParseType();
 
 		ExprPtr Parse();
 		ExprPtr ParseDef();

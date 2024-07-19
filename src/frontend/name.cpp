@@ -13,29 +13,36 @@ static std::vector<std::string> split(const std::string &str, const std::string 
 	return path;
 }
 
+tpp::Name::Name() {}
+
 tpp::Name::Name(const char *name) : Name(std::string(name)) {}
 
 tpp::Name::Name(const std::string &name) : Name(split(name, ":")) {}
 
-tpp::Name::Name(const std::vector<std::string> &path) : Path(path)
+tpp::Name::Name(const std::vector<std::string> &path) : Path(path) {}
+
+tpp::Name::Name(const std::vector<std::string> &ns, const std::string &name) : Path(ns) { Path.push_back(name); }
+
+tpp::Name::Name(const Name &ns, const std::string &name) : Path(ns.Path) { Path.push_back(name); }
+
+tpp::Name::Name(const std::vector<std::string> &ns, const Name &name) : Path(ns)
 {
-	for (size_t i = 0; i < path.size(); ++i)
-	{
-		if (i > 0) Str += ':';
-		Str += path[i];
-	}
+	for (const auto &p : name.Path) Path.push_back(p);
 }
 
-tpp::Name::Name(const std::vector<std::string> &ns, const std::string &name) : Path(ns)
+std::string tpp::Name::String() const
 {
-	Path.push_back(name);
+	std::string str;
 	for (size_t i = 0; i < Path.size(); ++i)
 	{
-		if (i > 0) Str += ':';
-		Str += Path[i];
+		if (i > 0) str += ':';
+		str += Path[i];
 	}
+	return str;
 }
 
-const char *tpp::Name::c_str() const { return Str.c_str(); }
+bool tpp::Name::operator!() const { return Path.empty(); }
 
-bool tpp::operator<(const Name &a, const Name &b) { return a.Str < b.Str; }
+bool tpp::operator<(const Name &a, const Name &b) { return a.Path < b.Path; }
+
+std::ostream &tpp::operator<<(std::ostream &out, const Name &name) { return out << name.String(); }

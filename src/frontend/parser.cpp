@@ -1,8 +1,13 @@
 #include <TPP/Frontend/Expression.hpp>
+#include <TPP/Frontend/Frontend.hpp>
 #include <TPP/Frontend/Parser.hpp>
 #include <TPP/Frontend/SourceLocation.hpp>
+#include <TPP/Frontend/StructField.hpp>
+#include <TPP/Frontend/Type.hpp>
 #include <fstream>
 #include <memory>
+#include <string>
+#include <vector>
 
 std::map<std::string, unsigned> tpp::Parser::PRECEDENCES = {
 	{ "=", 0 },	 { "<<=", 0 }, { ">>=", 0 }, { ">>>=", 0 }, { "+=", 0 },  { "-=", 0 }, { "*=", 0 }, { "/=", 0 }, { "%=", 0 }, { "&=", 0 },
@@ -305,19 +310,28 @@ void tpp::Parser::ParseNamespace()
 		m_Namespace.pop_back();
 }
 
-tpp::Name tpp::Parser::ParseName(bool inherit)
+tpp::Name tpp::Parser::ParseName()
 {
-	std::string name = Expect(TokenType_Id).Value;
+	std::vector<std::string> path;
+	path.push_back(Expect(TokenType_Id).Value);
 
-	if (!At(":"))
+	if (!At(":")) { return path; }
+
+	while (NextIfAt(":")) path.push_back(Expect(TokenType_Id).Value);
+	return path;
+}
+
+tpp::TypePtr tpp::Parser::ParseType()
+{
+	if (NextIfAt("["))
 	{
-		if (inherit) return { m_Namespace, name };
-		return { name };
+		auto base = ParseType();
+		Expect("]");
+		return Type::GetArray(base);
 	}
 
-	while (NextIfAt(":")) { name += ':' + Expect(TokenType_Id).Value; }
-
-	return { name };
+	auto name = ParseName();
+	return Type::Get(name);
 }
 
 tpp::ExprPtr tpp::Parser::Parse()
@@ -330,67 +344,77 @@ tpp::ExprPtr tpp::Parser::Parse()
 tpp::ExprPtr tpp::Parser::ParseDef()
 {
 	auto location = m_Token.Location;
-
 	Expect("def");
 
-	std::string native_name;
-	if (NextIfAt("native"))
+	auto type = ParseType();
+	Name name;
+
+	if (!(At("=") || At("(") || At("[")))
 	{
-		Expect("(");
-		native_name = Expect(TokenType_String).Value;
-		Expect(")");
+		if (NextIfAt("{"))
+		{
+			name = m_InFunction ? type->MName : Name{ m_Namespace, type->MName };
+
+			std::vector<StructField> fields;
+			while (!NextIfAt("}"))
+			{
+				auto field_type = ParseType();
+				auto field_name = ParseName();
+				ExprPtr field_init;
+				if (NextIfAt("=")) field_init = Parse();
+				fields.emplace_back(field_type, field_name, field_init);
+				if (!At("}")) Expect(",");
+			}
+			return std::make_shared<DefStructExpression>(location, name, fields);
+		}
+
+		name = ParseName();
+	}
+	else
+	{
+		name = type->MName;
+		type = {};
 	}
 
-	auto name = ParseName(!m_InFunction);
+	if (!m_InFunction) name = { m_Namespace, name };
 
 	if (NextIfAt("("))
 	{
-		std::vector<std::string> arg_names;
-		bool has_var_args = false;
-		while (!At(")"))
+		std::vector<Arg> args;
+		bool var_arg = false;
+
+		while (!NextIfAt(")"))
 		{
 			if (NextIfAt("?"))
 			{
-				has_var_args = true;
+				var_arg = true;
+				Expect(")");
 				break;
 			}
 
-			arg_names.push_back(Expect(TokenType_Id).Value);
-
+			auto arg_type = ParseType();
+			auto arg_name = ParseName();
+			args.emplace_back(arg_type, arg_name);
 			if (!At(")")) Expect(",");
 		}
-		Expect(")");
-
-		std::string promise;
-		if (NextIfAt("->")) promise = Expect(TokenType_Id).Value;
 
 		ExprPtr body;
-		if (NextIfAt("="))
-		{
-			auto backup = m_InFunction;
-			m_InFunction = true;
-			body = Parse();
-			m_InFunction = backup;
-		}
+		if (NextIfAt("=")) body = Parse();
 
-		return std::make_shared<DefFunctionExpression>(location, native_name, name, arg_names, has_var_args, promise, body);
+		return std::make_shared<DefFunctionExpression>(location, type, name, args, var_arg, body);
 	}
 
+	ExprPtr size;
 	if (NextIfAt("["))
 	{
-		auto size = Parse();
+		size = Parse();
 		Expect("]");
-
-		ExprPtr init;
-		if (NextIfAt("=")) init = Parse();
-
-		return std::make_shared<DefVariableExpression>(location, native_name, name, size, init);
 	}
 
 	ExprPtr init;
 	if (NextIfAt("=")) init = Parse();
 
-	return std::make_shared<DefVariableExpression>(location, native_name, name, init);
+	return std::make_shared<DefVariableExpression>(location, type, name, size, init);
 }
 
 tpp::ExprPtr tpp::Parser::ParseFor()
@@ -577,47 +601,22 @@ tpp::ExprPtr tpp::Parser::ParsePrimary()
 
 	if (NextIfAt("{"))
 	{
-		std::map<std::string, ExprPtr> fields;
+		std::vector<ExprPtr> init;
 		while (!NextIfAt("}"))
 		{
-			auto name = Expect(TokenType_Id).Value;
-
-			ExprPtr value;
-			if (At("["))
-			{
-				auto loc = m_Token.Location;
-
-				Next();
-				auto size = Parse();
-				Expect("]");
-
-				ExprPtr init;
-				if (NextIfAt("=")) init = Parse();
-
-				value = std::make_shared<SizedArrayExpression>(loc, size, init);
-			}
-			else
-			{
-				Expect("=");
-				value = Parse();
-			}
-
-			fields[name] = value;
-
+			init.push_back(Parse());
 			if (!At("}")) Expect(",");
 		}
-		return std::make_shared<ObjectExpression>(location, fields);
+		return std::make_shared<ObjectExpression>(location, init);
 	}
 
 	if (NextIfAt("["))
 	{
-		std::vector<ExprPtr> values;
-		while (!NextIfAt("]"))
-		{
-			values.push_back(Parse());
-			if (!At("]")) Expect(",");
-		}
-		return std::make_shared<ArrayExpression>(location, values);
+		auto size = Parse();
+		ExprPtr init;
+		if (NextIfAt(",")) init = Parse();
+		Expect("]");
+		return std::make_shared<ArrayExpression>(location, size, init);
 	}
 
 	error(m_Token.Location, "unhandled token: %s", m_Token.Value.c_str());

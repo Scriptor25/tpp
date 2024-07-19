@@ -1,6 +1,6 @@
-def infinity = 1 / 0
-def pi = 3.1415926535897932385
+def f64 infinity = 1 / 0
+def f64 pi = 3.1415926535897932385
 
-def degrees_to_radians(degrees) -> number = degrees * pi / 180
+def f64 degrees_to_radians(f64 degrees) = degrees * pi / 180
 
-def random(min, max) -> number = min + (max - min) * random()
+def f64 random(f64 min, f64 max) = min + (max - min) * random()

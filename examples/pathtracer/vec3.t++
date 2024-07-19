@@ -1,61 +1,60 @@
 include "../std/std.t++"
 
 :vec3
-def new() = { x = 0, y = 0, z = 0 }
-def new(x, y, z) = { x = x, y = y, z = z }
+def [f64] new() = {0, 0, 0}
+def [f64] new(f64 x, f64 y, f64 z) = {x, y, z}
 
-def copy(self, other) = (
-    printf("%s = %s\n", self.string, other.string)
-    self.x = other.x
-    self.y = other.y
-    self.z = other.z
+def copy([f64] self, [f64] other) = (
+    self[0] = other[0]
+    self[1] = other[1]
+    self[2] = other[2]
 )
 
-def x(self) = self.x
-def y(self) = self.y
-def z(self) = self.z
+def f64 x([f64] self) = self[0]
+def f64 y([f64] self) = self[1]
+def f64 z([f64] self) = self[2]
 
-def neg(self) = vec3:new(-self.x, -self.y, -self.z)
+def [f64] neg([f64] self) = vec3:new(-self[0], -self[1], -self[2])
 
-def adde(self, v) = (
-    self.x += v.x
-    self.y += v.y
-    self.z += v.z
+def [f64] adde([f64] self, [f64] v) = (
+    self[0] += v[0]
+    self[1] += v[1]
+    self[2] += v[2]
     self
 )
 
-def mule(self, t) = (
-    self.x *= t
-    self.y *= t
-    self.z *= t
+def [f64] mule([f64] self, f64 t) = (
+    self[0] *= t
+    self[1] *= t
+    self[2] *= t
     self
 )
 
-def dive(self, t) = vec3:mule(self, 1 / t)
+def [f64] dive([f64] self, f64 t) = vec3:mule(self, 1 / t)
 
-def length_squared(self) = self.x * self.x + self.y * self.y + self.z * self.z
-def length(self) = sqrt(vec3:length_squared(self))
+def f64 length_squared([f64] self) = self[0] * self[0] + self[1] * self[1] + self[2] * self[2]
+def f64 length([f64] self) = sqrt(vec3:length_squared(self))
 
-def near_zero(self) = (
+def i1 near_zero([f64] self) = (
     def s = 0.00000001
-    def is = (abs(self.x) < s) && (abs(self.y) < s) && (abs(self.z) < s)
+    def is = (abs(self[0]) < s) && (abs(self[1]) < s) && (abs(self[2]) < s)
 )
 
-def add(l, r) = vec3:new(l.x + r.x, l.y + r.y, l.z + r.z)
-def sub(l, r) = vec3:new(l.x - r.x, l.y - r.y, l.z - r.z)
-def mul(l, r) = vec3:new(l.x * r.x, l.y * r.y, l.z * r.z)
-def muln(l, r) = vec3:new(l.x * r, l.y * r, l.z * r)
-def nmul(l, r) = vec3:muln(r, l)
-def div(l, r) = vec3:muln(l, 1 / r)
+def [f64] add([f64] l, [f64] r) = vec3:new(l[0] + r[0], l[1] + r[1], l[2] + r[2])
+def [f64] sub([f64] l, [f64] r) = vec3:new(l[0] - r[0], l[1] - r[1], l[2] - r[2])
+def [f64] mul([f64] l, [f64] r) = vec3:new(l[0] * r[0], l[1] * r[1], l[2] * r[2])
+def [f64] muln([f64] l, f64 r) = vec3:new(l[0] * r, l[1] * r, l[2] * r)
+def [f64] nmul(f64 l, [f64] r) = vec3:muln(r, l)
+def [f64] div([f64] l, f64 r) = vec3:muln(l, 1 / r)
 
-def dot(l, r) = l.x * r.x + l.y * r.y + l.z * r.z
-def cross(l, r) = vec3:new(
-    l.y * r.z - l.z * r.y,
-    l.z * r.x - l.x * r.z,
-    l.x * r.y - l.y * r.x
+def f64 dot([f64] l, [f64] r) = l[0] * r[0] + l[1] * r[1] + l[2] * r[2]
+def [f64] cross([f64] l, [f64] r) = vec3:new(
+    l[1] * r[2] - l[2] * r[1],
+    l[2] * r[0] - l[0] * r[2],
+    l[0] * r[1] - l[1] * r[0]
 )
 
-def unit_vector(v) = vec3:div(v, vec3:length(v))
+def [f64] unit_vector([f64] v) = vec3:div(v, vec3:length(v))
 
 def random() = vec3:new(random(), random(), random())
 def random(min, max) = vec3:new(random(min, max), random(min, max), random(min, max))

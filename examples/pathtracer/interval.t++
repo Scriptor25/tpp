@@ -1,21 +1,17 @@
 include "common.t++"
 
+def interval { f64 min = infinity, f64 max = -infinity }
+
 :interval
-def new() -> object = {
-    min = infinity,
-    max = -infinity
-}
+def interval new() = {}
 
-def new(min, max) -> object = {
-    min = min,
-    max = max
-}
+def interval new(f64 min, f64 max) = {min, max}
 
-def size(self) -> number = self.max - self.min
+def f64 size(interval self) = self.max - self.min
 
-def contains(self, x) -> number = self.min <= x && x <= self.max
-def surrounds(self, x) -> number = self.min < x && x < self.max
-def clamp(self, x) -> number =
+def f64 contains(interval self, f64 x) = self.min <= x && x <= self.max
+def f64 surrounds(interval self, f64 x) = self.min < x && x < self.max
+def f64 clamp(interval self, f64 x) =
     if [x < self.min] self.min
     else if [x > self.max] self.max
     else x

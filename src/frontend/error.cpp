@@ -1,5 +1,5 @@
+#include <TPP/Frontend/Frontend.hpp>
 #include <TPP/Frontend/SourceLocation.hpp>
-#include <TPP/Frontend/TPP.hpp>
 #include <cstdarg>
 #include <cstdio>
 

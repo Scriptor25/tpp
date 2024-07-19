@@ -1,46 +1,52 @@
 include "std.t++"
 
 :image
+def image {
+    i32 width,
+    i32 height,
+    [i32] pixels
+}
+
 # Read Image #
-def read(self, filename)
+def read(image self, [i8] filename)
 
 # Write Image #
-def write(self, filename) = (
-    fopen(filename, "wb")
+def write(image self, [i8] filename) = (
+    def stream = fopen(filename, "wb")
 
-    fprintf(filename, "P6\n%.0f %.0f\n255\n", self.width, self.height)
+    fprintf(stream, "P6\n%.0f %.0f\n255\n", self.width, self.height)
     for [0, self.width * self.height] -> i (
         def c = self.pixels[i]
-        def r = (c >> 16) & 255
-        def g = (c >> 8) & 255
-        def b = c & 255
-        fprintf(filename, "%c%c%c", char(r), char(g), char(b))
+        def i8 r = (c >> 16) & 255
+        def i8 g = (c >> 8) & 255
+        def i8 b = c & 255
+        fprintf(stream, "%c%c%c", r, g, b)
     )
 
-    fclose(filename)
+    fclose(stream)
 )
 
 # Create Image #
-def new(width, height) -> object = {
-    width = width,
-    height = height,
-    pixels[width * height]
+def image new(i32 width, i32 height) = {
+    width,
+    height,
+    [width * height]
 }
 
 # Set Pixel #
-def setPixel(self, x, y, color) = self.pixels[x + y * self.width] = color
+def setPixel(image self, i32 x, i32 y, i32 color) = self.pixels[x + y * self.width] = color
 
 # Get Pixel #
-def getPixel(self, x, y) -> number = self.pixels[x + y * self.width]
+def getPixel(image self, i32 x, i32 y) = self.pixels[x + y * self.width]
 
 # Set Pixels #
-def setPixels(self, pixels, x, y, width, height) =
+def setPixels(image self, [i32] pixels, i32 x, i32 y, i32 width, i32 height) =
     for [y, y + height] -> j
         for [x, x + width] -> i
             self.pixels[i + j * self.width] = pixels[(i - x) + (j - y) * width]
 
 # Get Pixels #
-def getPixels(self, pixels, x, y, width, height) = 
+def getPixels(image self, [i32] pixels, i32 x, i32 y, i32 width, i32 height) = 
     for [y, y + height] -> j
         for [x, x + width] -> i
             pixels[(i - x) + (j - y) * width] = self.pixels[i + j * self.width]

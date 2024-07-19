@@ -1,24 +1,28 @@
 include "../std/std.t++"
 
-def main(?) -> number = (
+def vec2 { f64 x = 0, f64 y = 0 }
+def person { [i8] name, f64 age }
+def test { vec2 a, person b, f64 c, [[i8]] d }
 
-    def a = {x = 0.5, y =  4.5}
-    def b = {x = 1.0, y = -3.0}
+def i32 main([[i8]] args) = (
+
+    def vec2 a = {0.5,  4.5}
+    def vec2 b = {1.0, -3.0}
 
     printf("a = %s, b = %s\n", a.string, b.string)
 
-    def c = {}
+    def vec2 c
     c.x = a.x + b.x
     c.y = a.y + b.y
 
     printf("c = a + b = %s\n", c.string)
 
-    def d = [0, 2, 5, 1]
-    def e = ["Hello", 'W', 'o', 'r', 'l', 'd', '!', 123]
+    def [i32] d = {0, 2, 5, 1}
+    def [[i8]] e = {"Hello", "W", "o", "r", "l", "d", "!", "123"}
 
     printf("%s & %s\n", d.string, e.string)
 
-    def nested = {a = {x = 0.1, y = -1.0}, b = {name = "felix", age = 18.45}, c = 1.0, d = ?}
+    def test nested = {{0.1, -1.0}, {"felix", 18.45}, 1.0, args}
 
     printf("nested = %s\n", nested.string)
 

@@ -1,25 +1,25 @@
 include "../std/std.t++"
 
-def width = 80
-def height = 40
-def max_iteration = 100
-def sample_size = 10
+def i32 width = 80
+def i32 height = 40
+def i32 max_iteration = 100
+def i32 sample_size = 10
 def palette = " .,-~:;=!*#$@"
 
-def scale(x, xmin, xmax, min, max) -> number = min + (max - min) * (xmax - x) / (xmax - xmin)
-def clamp(x, min, max) -> number = if [x < min] min else if [x > max] max else x
+def f64 scale(f64 x, f64 xmin, f64 xmax, f64 min, f64 max) = min + (max - min) * (xmax - x) / (xmax - xmin)
+def f64 clamp(f64 x, f64 min, f64 max) = if [x < min] min else if [x > max] max else x
 
-def main(?) -> number = (
+def i32 main([[i8]] args) = (
     for [0, height] -> j (
         for [0, width] -> i (
-            def t = 0
+            def f64 t
             for [0, sample_size] -> sj (
                 for [0, sample_size] -> si (
                     def x0 = -scale(i, 0, width, -0.5, 2.0)
                     def y0 = scale(j, 0, height, -1.5, 1.5)
-                    def x = 0
-                    def y = 0
-                    def iteration = 0
+                    def f64 x
+                    def f64 y
+                    def i32 iteration
                     while [x * x + y * y <= 2 * 2 && iteration < max_iteration] (
                         def xtemp = x * x - y * y + x0
                         y = 2 * x * y + y0
@@ -29,8 +29,8 @@ def main(?) -> number = (
                     t += iteration / max_iteration
                 )
             )
-            def color = palette[clamp(12 * t / (sample_size * sample_size), 0, 12)]
-            putchar(color)
+            def char = palette[clamp(12 * t / (sample_size * sample_size), 0, 12)]
+            putchar(char)
         )
         putchar('\n')
     )

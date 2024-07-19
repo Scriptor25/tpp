@@ -10,10 +10,10 @@
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "args": [
-                "examples/simple/test.t++"
+                "examples/pathtracer/main.t++"
             ],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

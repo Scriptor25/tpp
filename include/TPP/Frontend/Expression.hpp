@@ -1,9 +1,10 @@
 #pragma once
 
+#include <TPP/Frontend/Arg.hpp>
+#include <TPP/Frontend/Frontend.hpp>
 #include <TPP/Frontend/Name.hpp>
 #include <TPP/Frontend/SourceLocation.hpp>
-#include <TPP/Frontend/TPP.hpp>
-#include <map>
+#include <TPP/Frontend/StructField.hpp>
 #include <string>
 #include <vector>
 
@@ -17,26 +18,30 @@ namespace tpp
 		SourceLocation Location;
 	};
 
+	struct DefStructExpression : Expression
+	{
+		DefStructExpression(const SourceLocation &location, const Name &name, const std::vector<StructField> &fields);
+
+		Name MName;
+		std::vector<StructField> Fields;
+	};
+
 	struct DefFunctionExpression : Expression
 	{
-		DefFunctionExpression(
-			const SourceLocation &location, const std::string &native_name, const Name &name, const std::vector<std::string> &arg_names, bool has_var_args, const std::string &promise,
-			const ExprPtr &body);
+		DefFunctionExpression(const SourceLocation &location, const TypePtr &result, const Name &name, const std::vector<Arg> &args, bool var_arg, const ExprPtr &body);
 
-		std::string NativeName;
+		TypePtr Result;
 		Name MName;
-		std::vector<std::string> ArgNames;
-		bool HasVarArgs;
-		std::string Promise;
+		std::vector<Arg> Args;
+		bool VarArg;
 		ExprPtr Body;
 	};
 
 	struct DefVariableExpression : Expression
 	{
-		DefVariableExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const ExprPtr &init);
-		DefVariableExpression(const SourceLocation &location, const std::string &native_name, const Name &name, const ExprPtr &size, const ExprPtr &init);
+		DefVariableExpression(const SourceLocation &location, const TypePtr &type, const Name &name, const ExprPtr &size, const ExprPtr &init);
 
-		std::string NativeName;
+		TypePtr MType;
 		Name MName;
 		ExprPtr Size;
 		ExprPtr Init;
@@ -151,28 +156,22 @@ namespace tpp
 		ExprPtr Operand;
 	};
 
-	struct SizedArrayExpression : Expression
+	struct ObjectExpression : Expression
 	{
-		SizedArrayExpression(const SourceLocation &location, const ExprPtr &size, const ExprPtr &init);
+		ObjectExpression(const SourceLocation &location, const std::vector<ExprPtr> &init);
+
+		std::vector<ExprPtr> Init;
+	};
+
+	struct ArrayExpression : Expression
+	{
+		ArrayExpression(const SourceLocation &location, const ExprPtr &size, const ExprPtr &init);
 
 		ExprPtr Size;
 		ExprPtr Init;
 	};
 
-	struct ObjectExpression : Expression
-	{
-		ObjectExpression(const SourceLocation &location, const std::map<std::string, ExprPtr> &fields);
-
-		std::map<std::string, ExprPtr> Fields;
-	};
-
-	struct ArrayExpression : Expression
-	{
-		ArrayExpression(const SourceLocation &location, const std::vector<ExprPtr> &values);
-
-		std::vector<ExprPtr> Values;
-	};
-
+	std::ostream &operator<<(std::ostream &out, const DefStructExpression &e);
 	std::ostream &operator<<(std::ostream &out, const DefFunctionExpression &e);
 	std::ostream &operator<<(std::ostream &out, const DefVariableExpression &e);
 	std::ostream &operator<<(std::ostream &out, const ForExpression &e);
@@ -189,7 +188,6 @@ namespace tpp
 	std::ostream &operator<<(std::ostream &out, const StringExpression &e);
 	std::ostream &operator<<(std::ostream &out, const VarArgsExpression &e);
 	std::ostream &operator<<(std::ostream &out, const UnaryExpression &e);
-	std::ostream &operator<<(std::ostream &out, const SizedArrayExpression &e);
 	std::ostream &operator<<(std::ostream &out, const ObjectExpression &e);
 	std::ostream &operator<<(std::ostream &out, const ArrayExpression &e);
 }

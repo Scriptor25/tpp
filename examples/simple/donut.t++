@@ -1,32 +1,32 @@
 include "../std/std.t++"
 
-def pi = 3.141596
-def pi2 = 2 * pi
+def f64 pi = 3.141596
+def f64 pi2 = 2 * pi
 
-def theta_spacing = 0.07
-def phi_spacing = 0.02
+def f64 theta_spacing = 0.07
+def f64 phi_spacing = 0.02
 
-def char_ratio = 0.45
+def f64 char_ratio = 0.45
 
-def screen_width = 60
-def screen_height = 30
-def screen_width2 = screen_width / 2
-def screen_height2 = screen_height / 2
+def i32 screen_width = 60
+def i32 screen_height = 30
+def i32 screen_width2 = screen_width / 2
+def i32 screen_height2 = screen_height / 2
 
-def R1 = 1
-def R2 = 2
-def K2 = 5
-def K1 = screen_width * K2 * 3 / (8 * (R1 + R2))
+def i32 R1 = 1
+def i32 R2 = 2
+def i32 K2 = 5
+def i32 K1 = screen_width * K2 * 3 / (8 * (R1 + R2))
 
-def thetas = floor(pi2 / theta_spacing)
-def theta_cos[thetas]
-def theta_sin[thetas]
+def i32 thetas = pi2 / theta_spacing
+def [f64] theta_cos = [thetas]
+def [f64] theta_sin = [thetas]
 
-def phis = floor(pi2 / phi_spacing)
-def phi_cos[phis]
-def phi_sin[phis]
+def i32 phis = pi2 / phi_spacing
+def [f64] phi_cos = [phis]
+def [f64] phi_sin = [phis]
 
-def render_frame(A, B) = (
+def i64 render_frame(f64 A, f64 B) = (
     def start = millis()
 
     def cosA = cos(A)
@@ -34,8 +34,8 @@ def render_frame(A, B) = (
     def cosB = cos(B)
     def sinB = sin(B)
 
-    def output[screen_width * screen_height] = ' '
-    def zbuffer[screen_width * screen_height]
+    def [i8] output = [screen_width * screen_height, ' ']
+    def [f64] zbuffer = [screen_width * screen_height]
 
     for [0, thetas] -> theta (
         def costheta = theta_cos[theta]
@@ -54,8 +54,8 @@ def render_frame(A, B) = (
             def ooz = 1 / z
 
             def k1_ooz = K1 * ooz
-            def xp = floor(screen_width2 + k1_ooz * x)
-            def yp = floor(screen_height2 - k1_ooz * y * char_ratio)
+            def i32 xp = screen_width2 + k1_ooz * x
+            def i32 yp = screen_height2 - k1_ooz * y * char_ratio
 
             if [!(xp < 0 || xp >= screen_width || yp < 0 || yp >= screen_height)] (
 
@@ -65,7 +65,7 @@ def render_frame(A, B) = (
                     def idx = xp + yp * screen_width
                     if [ooz > zbuffer[idx]] (
                         zbuffer[idx] = ooz
-                        output[idx] = ".,-~:;=!*#$@"[floor(L * 8)]
+                        output[idx] = ".,-~:;=!*#$@"[L * 8]
                     )
                 )
             )
@@ -83,7 +83,7 @@ def render_frame(A, B) = (
     millis() - start
 )
 
-def main(?) -> number = (
+def i32 main([[i8]] argv) = (
 
     printf("\x1B\x9BH\x1B\x9BJ")
 
@@ -99,11 +99,11 @@ def main(?) -> number = (
         phi_sin[phi] = sin(t)
     )
 
-    def a = 0
-    def b = 0
+    def f64 a = 0
+    def f64 b = 0
     while [1] (
         def dt = render_frame(a += 0.04, b += 0.07)
-        printf("%4.0f FPS\n", floor(1000.0 / dt))
+        printf("%4d FPS\n", 1000 / dt)
     )
     0
 )
