@@ -37,14 +37,14 @@ def i64 render_frame(f64 A, f64 B) = (
     def [i8] output = [screen_width * screen_height, ' ']
     def [f64] zbuffer = [screen_width * screen_height]
 
-    for [0, thetas] -> theta (
+    for [0, thetas]: theta (
         def costheta = theta_cos[theta]
         def sintheta = theta_sin[theta]
 
         def circlex = R2 + R1 * costheta
         def circley = R1 * sintheta
 
-        for [0, phis] -> phi (
+        for [0, phis]: phi (
             def cosphi = phi_cos[phi]
             def sinphi = phi_sin[phi]
 
@@ -73,9 +73,9 @@ def i64 render_frame(f64 A, f64 B) = (
     )
 
     printf("\x1B\x9BH")
-    for [0, screen_height] -> j (
+    for [0, screen_height]: j (
         def jw = j * screen_width
-        for [0, screen_width] -> i
+        for [0, screen_width]: i
             putchar(output[i + jw])
         putchar('\n')
     )
@@ -87,13 +87,13 @@ def i32 main([[i8]] argv) = (
 
     printf("\x1B\x9BH\x1B\x9BJ")
 
-    for [0, thetas] -> theta (
+    for [0, thetas]: theta (
         def t = pi2 * theta / thetas
         theta_cos[theta] = cos(t)
         theta_sin[theta] = sin(t)
     )
     
-    for [0, phis] -> phi (
+    for [0, phis]: phi (
         def t = pi2 * phi / phis
         phi_cos[phi] = cos(t)
         phi_sin[phi] = sin(t)

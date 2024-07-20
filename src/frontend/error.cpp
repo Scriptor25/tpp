@@ -10,8 +10,9 @@ void tpp::error(const SourceLocation &location, const char *format, ...)
 	va_list ap;
 	va_start(ap, format);
 	vprintf(format, ap);
-	::putchar('\n');
 	va_end(ap);
 
+	putchar('\n');
+	fflush(0);
 	throw;
 }

@@ -14,6 +14,17 @@
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug (VS)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [
+                "examples/pathtracer/main.t++"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

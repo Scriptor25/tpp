@@ -15,7 +15,7 @@ def write(image self, [i8] filename) = (
     def stream = fopen(filename, "wb")
 
     fprintf(stream, "P6\n%.0f %.0f\n255\n", self.width, self.height)
-    for [0, self.width * self.height] -> i (
+    for [0, self.width * self.height]: i (
         def c = self.pixels[i]
         def i8 r = (c >> 16) & 255
         def i8 g = (c >> 8) & 255
@@ -41,13 +41,13 @@ def getPixel(image self, i32 x, i32 y) = self.pixels[x + y * self.width]
 
 # Set Pixels #
 def setPixels(image self, [i32] pixels, i32 x, i32 y, i32 width, i32 height) =
-    for [y, y + height] -> j
-        for [x, x + width] -> i
+    for [y, y + height]: j
+        for [x, x + width]: i
             self.pixels[i + j * self.width] = pixels[(i - x) + (j - y) * width]
 
 # Get Pixels #
 def getPixels(image self, [i32] pixels, i32 x, i32 y, i32 width, i32 height) = 
-    for [y, y + height] -> j
-        for [x, x + width] -> i
+    for [y, y + height]: j
+        for [x, x + width]: i
             pixels[(i - x) + (j - y) * width] = self.pixels[i + j * self.width]
 :image

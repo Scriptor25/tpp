@@ -15,10 +15,10 @@ def camera {
     # private #
     i32 image_height,
     f64 pixel_samples_scale,
-    [f64] center,
-    [f64] pixel00_loc,
-    [f64] pixel_delta_u,
-    [f64] pixel_delta_v
+    vec3 center,
+    vec3 pixel00_loc,
+    vec3 pixel_delta_u,
+    vec3 pixel_delta_v
 }
 
 :camera
@@ -44,7 +44,7 @@ def initialize(camera self) = (
     self.pixel00_loc = vec3:add(viewport_upper_left, vec3:nmul(0.5, vec3:add(self.pixel_delta_u, self.pixel_delta_v)))
 )
 
-def [f64] sample_square() = vec3:new(random() - 0.5, random() - 0.5, 0)
+def vec3 sample_square() = vec3:new(random() - 0.5, random() - 0.5, 0)
 
 def ray get_ray(camera self, i32 i, i32 j) = (
     def offset = camera:sample_square()
@@ -56,35 +56,32 @@ def ray get_ray(camera self, i32 i, i32 j) = (
     ray:new(ray_origin, ray_direction)
 )
 
-def [f64] ray_color(camera self, ray r, i32 depth, hittable world) = (
-    if [depth > 0] (
-        def hit_record rec
+def vec3 ray_color(camera self, ray r, i32 depth, hittable world) = (
+    if [depth <= 0] -> {}
+    
+    def hit_record rec
 
-        if [hittable:hit(world, r, interval:new(0.001, infinity), rec)] (
-            def ray scattered
-            def [f64] attenuation
-            if [material:scatter(rec.mat, r, rec, attenuation, scattered)]
-                vec3:mul(attenuation, camera:ray_color(self, scattered, depth - 1, world))
-            else vec3:new(0, 0, 0)
-        )
-        else (
-            def unit_direction = vec3:unit_vector(r.direction)
-            def f64 a = 0.5 * (unit_direction.y + 1)
-            vec3:add(vec3:nmul(1 - a, vec3:new(1, 1, 1)), vec3:nmul(a, vec3:new(0.5, 0.7, 1)))
-        )
-    ) else (
-        vec3:new(0, 0, 0)
+    if [hittable:hit(world, r, interval:new(0.001, infinity), rec)] (
+        def ray scattered
+        def vec3 attenuation
+        if [material:scatter(rec.mat, r, rec, attenuation, scattered)]
+            -> vec3:mul(attenuation, camera:ray_color(self, scattered, depth - 1, world))
+        -> {}
     )
+
+    def unit_direction = vec3:unit_vector(r.direction)
+    def a = 0.5 * (unit_direction.y + 1)
+    vec3:add(vec3:nmul(1 - a, vec3:new(1, 1, 1)), vec3:nmul(a, vec3:new(0.5, 0.7, 1)))
 )
 
-def render(self, world) = (
+def render(camera self, hittable world) = (
     camera:initialize(self)
 
     def image = image:new(self.image_width, self.image_height)
 
-    for [0, self.image_height] -> j (
+    for [0, self.image_height]: j (
         printf("\rScanlines remaining: %5.0f", self.image_height - j)
-        for [0, self.image_width] -> i (
+        for [0, self.image_width]: i (
             def pixel_color = vec3:new(0, 0, 0)
             for [0, self.samples_per_pixel] (
                 def r = camera:get_ray(self, i, j)

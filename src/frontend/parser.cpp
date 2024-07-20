@@ -110,7 +110,10 @@ void tpp::Parser::NewLine()
 	++m_Location.Row;
 }
 
-static bool isOp(int chr) { return chr == '+' || chr == '-' || chr == '*' || chr == '/' || chr == '%' || chr == '&' || chr == '|' || chr == '^' || chr == '=' || chr == '<' || chr == '>'; }
+static bool isOp(int chr)
+{
+	return chr == '+' || chr == '-' || chr == '*' || chr == '/' || chr == '%' || chr == '&' || chr == '|' || chr == '^' || chr == '=' || chr == '<' || chr == '>' || chr == '?';
+}
 
 tpp::Token &tpp::Parser::Next()
 {
@@ -337,6 +340,7 @@ tpp::TypePtr tpp::Parser::ParseType()
 tpp::ExprPtr tpp::Parser::Parse()
 {
 	if (At("def")) return ParseDef();
+	if (At("->")) return ParseReturn();
 
 	return ParseBinary();
 }
@@ -398,8 +402,12 @@ tpp::ExprPtr tpp::Parser::ParseDef()
 			if (!At(")")) Expect(",");
 		}
 
+		m_InFunction = true;
+
 		ExprPtr body;
 		if (NextIfAt("=")) body = Parse();
+
+		m_InFunction = false;
 
 		return std::make_shared<DefFunctionExpression>(location, type, name, args, var_arg, body);
 	}
@@ -415,6 +423,14 @@ tpp::ExprPtr tpp::Parser::ParseDef()
 	if (NextIfAt("=")) init = Parse();
 
 	return std::make_shared<DefVariableExpression>(location, type, name, size, init);
+}
+
+tpp::ExprPtr tpp::Parser::ParseReturn()
+{
+	auto location = m_Token.Location;
+	Expect("->");
+	auto result = Parse();
+	return std::make_shared<ReturnExpression>(location, result);
 }
 
 tpp::ExprPtr tpp::Parser::ParseFor()
@@ -436,7 +452,7 @@ tpp::ExprPtr tpp::Parser::ParseFor()
 	}
 
 	std::string id;
-	if (NextIfAt("->")) id = Expect(TokenType_Id).Value;
+	if (NextIfAt(":")) id = Expect(TokenType_Id).Value;
 
 	auto body = Parse();
 	return std::make_shared<ForExpression>(location, from, to, step, id, body);

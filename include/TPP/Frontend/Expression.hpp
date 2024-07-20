@@ -47,6 +47,13 @@ namespace tpp
 		ExprPtr Init;
 	};
 
+	struct ReturnExpression : Expression
+	{
+		ReturnExpression(const SourceLocation &location, const ExprPtr &result);
+
+		ExprPtr Result;
+	};
+
 	struct ForExpression : Expression
 	{
 		ForExpression(const SourceLocation &location, const ExprPtr &from, const ExprPtr &to, const ExprPtr &step, const std::string &id, const ExprPtr &body);
@@ -174,6 +181,7 @@ namespace tpp
 	std::ostream &operator<<(std::ostream &out, const DefStructExpression &e);
 	std::ostream &operator<<(std::ostream &out, const DefFunctionExpression &e);
 	std::ostream &operator<<(std::ostream &out, const DefVariableExpression &e);
+	std::ostream &operator<<(std::ostream &out, const ReturnExpression &e);
 	std::ostream &operator<<(std::ostream &out, const ForExpression &e);
 	std::ostream &operator<<(std::ostream &out, const WhileExpression &e);
 	std::ostream &operator<<(std::ostream &out, const IfExpression &e);

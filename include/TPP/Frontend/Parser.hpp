@@ -62,6 +62,7 @@ namespace tpp
 
 		ExprPtr Parse();
 		ExprPtr ParseDef();
+		ExprPtr ParseReturn();
 		ExprPtr ParseFor();
 		ExprPtr ParseWhile();
 		ExprPtr ParseIf();

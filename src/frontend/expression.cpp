@@ -23,6 +23,8 @@ tpp::DefVariableExpression::DefVariableExpression(const SourceLocation &location
 {
 }
 
+tpp::ReturnExpression::ReturnExpression(const SourceLocation &location, const ExprPtr &result) : Expression(location), Result(result) {}
+
 tpp::ForExpression::ForExpression(const SourceLocation &location, const ExprPtr &from, const ExprPtr &to, const ExprPtr &step, const std::string &id, const ExprPtr &body)
 	: Expression(location), From(from), To(to), Step(step), Id(id), Body(body)
 {
@@ -68,6 +70,7 @@ std::ostream &tpp::operator<<(std::ostream &out, const ExprPtr &ptr)
 	if (auto p = std::dynamic_pointer_cast<DefStructExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<DefFunctionExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<DefVariableExpression>(ptr)) return out << *p;
+	if (auto p = std::dynamic_pointer_cast<ReturnExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<ForExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<WhileExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<IfExpression>(ptr)) return out << *p;
@@ -152,6 +155,8 @@ std::ostream &tpp::operator<<(std::ostream &out, const DefVariableExpression &e)
 	if (e.Init) out << " = " << e.Init;
 	return out;
 }
+
+std::ostream &tpp::operator<<(std::ostream &out, const ReturnExpression &e) { return out << "-> " << e.Result; }
 
 std::ostream &tpp::operator<<(std::ostream &out, const ForExpression &e)
 {

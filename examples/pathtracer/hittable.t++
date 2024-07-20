@@ -1,28 +1,34 @@
 include "vec3.t++"
 
-:hit_record
-def new() -> object = {
-    p = vec3:new(),
-    normal = vec3:new(),
-    t = 0,
-    front_face = 0,
-    mat = {}
+def hit_record {
+    vec3 p,
+    vec3 normal,
+    f64 t,
+    i1 front_face,
+    material mat
 }
 
-def set_face_normal(self, r, outward_normal) = (
+:hit_record
+def hit_record new() = {}
+
+def set_face_normal(hit_record self, ray r, vec3 outward_normal) = (
     self.front_face = vec3:dot(r.direction, outward_normal) < 0
     self.normal = if [self.front_face] outward_normal else vec3:neg(outward_normal)
 )
 :hit_record
 
-def sphere:hit(self, r, ray_t, rec) -> number
-def hittable_list:hit(self, r, ray_t, rec) -> number
+def sphere {}
+def hittable_list {}
+
+def i1 sphere:hit(sphere self, ray r, interval ray_t, hit_record rec)
+def i1 hittable_list:hit(hittable_list self, ray r, interval ray_t, hit_record rec)
+
+def hittable {}
 
 :hittable
-def hit(self, r, ray_t, rec) -> number =
-    if [self.type == 0]
-        sphere:hit(self, r, ray_t, rec)
-    else if [self.type == 1]
-        hittable_list:hit(self, r, ray_t, rec)
-    else 0
+def i1 hit(hittable self, ray r, interval ray_t, hit_record rec) = (
+    if [self ? sphere] -> sphere:hit(self, r, ray_t, rec)
+    if [self ? hittable_list] -> hittable_list:hit(self, r, ray_t, rec)
+    0
+)
 :hittable

@@ -9,9 +9,9 @@ def f64 linear_to_gamma(f64 linear_component) =
     else 0
 
 def i32 int(vec3 self) = (
-    def r = color:linear_to_gamma(self.x)
-    def g = color:linear_to_gamma(self.y)
-    def b = color:linear_to_gamma(self.z)
+    def r = color:linear_to_gamma(self.e[0])
+    def g = color:linear_to_gamma(self.e[1])
+    def b = color:linear_to_gamma(self.e[2])
 
     def i8 ir = 256 * interval:clamp(color:intensity, r)
     def i8 ig = 256 * interval:clamp(color:intensity, g)

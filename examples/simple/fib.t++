@@ -15,7 +15,7 @@ def i32 N = 10
 
 # entry point #
 def i32 main([[i8]] args) = (
-    for [0, args.size] -> i
+    for [0, args.size]: i
         printf("%5d | %s\n", i, args[i])
 
     def fibN = fib(N)

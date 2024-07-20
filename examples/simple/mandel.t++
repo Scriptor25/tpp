@@ -10,11 +10,11 @@ def f64 scale(f64 x, f64 xmin, f64 xmax, f64 min, f64 max) = min + (max - min) *
 def f64 clamp(f64 x, f64 min, f64 max) = if [x < min] min else if [x > max] max else x
 
 def i32 main([[i8]] args) = (
-    for [0, height] -> j (
-        for [0, width] -> i (
+    for [0, height]: j (
+        for [0, width]: i (
             def f64 t
-            for [0, sample_size] -> sj (
-                for [0, sample_size] -> si (
+            for [0, sample_size]: sj (
+                for [0, sample_size]: si (
                     def x0 = -scale(i, 0, width, -0.5, 2.0)
                     def y0 = scale(j, 0, height, -1.5, 1.5)
                     def f64 x

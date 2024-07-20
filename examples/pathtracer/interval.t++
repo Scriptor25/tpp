@@ -1,10 +1,12 @@
 include "common.t++"
 
-def interval { f64 min = infinity, f64 max = -infinity }
+def interval {
+    f64 min = infinity,
+    f64 max = -infinity
+}
 
 :interval
 def interval new() = {}
-
 def interval new(f64 min, f64 max) = {min, max}
 
 def f64 size(interval self) = self.max - self.min

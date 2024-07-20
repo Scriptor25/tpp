@@ -1,42 +1,45 @@
 include "ray.t++"
 
-:lambertian
-def new(albedo) -> object = {
-    type = 0,
-    albedo = albedo
+def lambertian {
+    vec3 albedo
 }
 
-def scatter(self, r_in, rec, attenuation, scattered) -> number = (
+:lambertian
+def lambertian new(vec3 albedo) = {albedo}
+
+def i1 scatter(lambertian self, ray r_in, hit_record rec, vec3 attenuation, ray scattered) = (
     def scatter_direction = vec3:add(rec.normal, vec3:random_unit_vector())
 
     if [vec3:near_zero(scatter_direction)]
-        scatter_direction = rec.normal
+        scatter_direction === rec.normal
 
-    scattered = ray:new(rec.p, scatter_direction)
-    vec3:copy(attenuation, self.albedo)
+    scattered === ray:new(rec.p, scatter_direction)
+    attenuation === self.albedo
     1
 )
 :lambertian
 
-:metal
-def new(albedo) -> object = {
-    type = 1,
-    albedo = albedo
+def metal {
+    vec3 albedo
 }
 
-def scatter(self, r_in, rec, attenuation, scattered) -> number = (
+:metal
+def metal new(vec3 albedo) = {albedo}
+
+def i1 scatter(metal self, ray r_in, hit_record rec, vec3 attenuation, ray scattered) = (
     def reflected = vec3:reflect(r_in.direction, rec.normal)
-    scattered = ray:new(rec.p, reflected)
-    vec3:copy(attenuation, self.albedo)
+    scattered === ray:new(rec.p, reflected)
+    attenuation === self.albedo
     1
 )
 :metal
 
+def material {}
+
 :material
-def scatter(self, r_in, rec, attenuation, scattered) -> number =
-    if [self.type == 0]
-        lambertian:scatter(self, r_in, rec, attenuation, scattered)
-    else if [self.type == 1]
-        metal:scatter(self, r_in, rec, attenuation, scattered)
-    else 0
+def i1 scatter(material self, ray r_in, hit_record rec, vec3 attenuation, ray scattered) = (
+    if [self ? lambertian] -> lambertian:scatter(self, r_in, rec, attenuation, scattered)
+    if [self ? metal] -> metal:scatter(self, r_in, rec, attenuation, scattered)
+    0
+)
 :material

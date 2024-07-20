@@ -1,15 +1,17 @@
 include "vec3.t++"
 
+def ray {
+    vec3 origin,
+    vec3 direction
+}
+
 :ray
-def new() -> object = {
-    origin = vec3:new(),
-    direction = vec3:new()
+def ray new() = {}
+
+def ray new(vec3 origin, vec3 direction) = {
+    origin,
+    direction
 }
 
-def new(origin, direction) -> object = {
-    origin = origin,
-    direction = direction
-}
-
-def at(self, t) -> object = vec3:add(self.origin, vec3:nmul(t, self.direction))
+def vec3 at(ray self, f64 t) = vec3:add(self.origin, vec3:nmul(t, self.direction))
 :ray
