@@ -5,6 +5,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <map>
 #include <memory>
 
 namespace tpp
@@ -19,8 +20,10 @@ namespace tpp
 		llvm::IRBuilder<> &IRBuilder() const;
 
 		llvm::Value *GenIR(const ExprPtr &ptr);
+		llvm::Type *GenIR(const TypePtr &ptr);
 
 	private:
+		llvm::Value *GenIR(const DefStructExpression &e);
 		llvm::Value *GenIR(const DefFunctionExpression &e);
 		llvm::Value *GenIR(const DefVariableExpression &e);
 		llvm::Value *GenIR(const ForExpression &e);
@@ -44,5 +47,7 @@ namespace tpp
 		std::unique_ptr<llvm::LLVMContext> m_Context;
 		std::unique_ptr<llvm::Module> m_Module;
 		std::unique_ptr<llvm::IRBuilder<>> m_Builder;
+
+		std::map<llvm::Type *, DefStructExpression> m_Types;
 	};
 }

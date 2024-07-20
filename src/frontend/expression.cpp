@@ -11,6 +11,8 @@ tpp::Expression::Expression(const SourceLocation &location) : Location(location)
 
 tpp::Expression::~Expression() = default;
 
+tpp::DefStructExpression::DefStructExpression() : Expression(SourceLocation::UNKNOWN) {}
+
 tpp::DefStructExpression::DefStructExpression(const SourceLocation &location, const Name &name, const std::vector<StructField> &fields) : Expression(location), MName(name), Fields(fields) {}
 
 tpp::DefFunctionExpression::DefFunctionExpression(const SourceLocation &location, const TypePtr &result, const Name &name, const std::vector<Arg> &args, bool var_arg, const ExprPtr &body)

@@ -20,6 +20,7 @@ namespace tpp
 
 	struct DefStructExpression : Expression
 	{
+		DefStructExpression();
 		DefStructExpression(const SourceLocation &location, const Name &name, const std::vector<StructField> &fields);
 
 		Name MName;

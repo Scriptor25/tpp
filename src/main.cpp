@@ -21,6 +21,6 @@ int main(const int argc, const char **argv)
 		[&builder](const tpp::ExprPtr &ptr)
 		{
 			std::cout << ptr << std::endl;
-			// builder.GenIR(ptr);
+			builder.GenIR(ptr);
 		});
 }
