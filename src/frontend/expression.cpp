@@ -1,4 +1,5 @@
 #include <TPP/Frontend/Expression.hpp>
+#include <TPP/Frontend/Frontend.hpp>
 #include <TPP/Frontend/SourceLocation.hpp>
 #include <TPP/Frontend/Type.hpp>
 #include <functional>
@@ -15,55 +16,104 @@ tpp::DefStructExpression::DefStructExpression() : Expression(SourceLocation::UNK
 
 tpp::DefStructExpression::DefStructExpression(const SourceLocation &location, const Name &name, const std::vector<StructField> &fields) : Expression(location), MName(name), Fields(fields) {}
 
-tpp::DefFunctionExpression::DefFunctionExpression(const SourceLocation &location, const TypePtr &result, const Name &name, const std::vector<Arg> &args, bool var_arg, const ExprPtr &body)
-	: Expression(location), Result(result), MName(name), Args(args), VarArg(var_arg), Body(body)
+tpp::TypePtr tpp::DefStructExpression::GetType() const { return Type::Get("void"); }
+
+tpp::DefFunctionExpression::DefFunctionExpression(const SourceLocation &location, const TypePtr &result, const Name &name, const std::vector<Arg> &args, bool is_var_arg, const ExprPtr &body)
+	: Expression(location), Result(result), MName(name), Args(args), IsVarArg(is_var_arg), Body(body)
 {
+}
+
+tpp::TypePtr tpp::DefFunctionExpression::GetType() const
+{
+	std::vector<TypePtr> args(Args.size());
+	for (size_t i = 0; i < args.size(); ++i) args[i] = Args[i].Type;
+	return Type::GetFunction(Result, args, IsVarArg);
 }
 
 tpp::DefVariableExpression::DefVariableExpression(const SourceLocation &location, const TypePtr &type, const Name &name, const ExprPtr &size, const ExprPtr &init)
-	: Expression(location), MType(type), MName(name), Size(size), Init(init)
+	: Expression(location), Type(type), MName(name), Size(size), Init(init)
 {
 }
 
+tpp::TypePtr tpp::DefVariableExpression::GetType() const { return Type; }
+
 tpp::ReturnExpression::ReturnExpression(const SourceLocation &location, const ExprPtr &result) : Expression(location), Result(result) {}
+
+tpp::TypePtr tpp::ReturnExpression::GetType() const { return Result->GetType(); }
 
 tpp::ForExpression::ForExpression(const SourceLocation &location, const ExprPtr &from, const ExprPtr &to, const ExprPtr &step, const std::string &id, const ExprPtr &body)
 	: Expression(location), From(from), To(to), Step(step), Id(id), Body(body)
 {
 }
 
+tpp::TypePtr tpp::ForExpression::GetType() const { return Body->GetType(); }
+
 tpp::WhileExpression::WhileExpression(const SourceLocation &location, const ExprPtr &condition, const ExprPtr &body) : Expression(location), Condition(condition), Body(body) {}
+
+tpp::TypePtr tpp::WhileExpression::GetType() const { return Body->GetType(); }
 
 tpp::IfExpression::IfExpression(const SourceLocation &location, const ExprPtr &condition, const ExprPtr &branchTrue, const ExprPtr &branchFalse)
 	: Expression(location), Condition(condition), BranchTrue(branchTrue), BranchFalse(branchFalse)
 {
 }
 
+tpp::TypePtr tpp::IfExpression::GetType() const { return BranchTrue->GetType(); }
+
 tpp::GroupExpression::GroupExpression(const SourceLocation &location, const std::vector<ExprPtr> &body) : Expression(location), Body(body) {}
+
+tpp::TypePtr tpp::GroupExpression::GetType() const { return Body.back()->GetType(); }
 
 tpp::BinaryExpression::BinaryExpression(const SourceLocation &location, const std::string &op, const ExprPtr &lhs, const ExprPtr &rhs) : Expression(location), Operator(op), Lhs(lhs), Rhs(rhs) {}
 
+tpp::TypePtr tpp::BinaryExpression::GetType() const { error(Location, "TODO"); }
+
 tpp::CallExpression::CallExpression(const SourceLocation &location, const Name &callee, const std::vector<ExprPtr> &args) : Expression(location), Callee(callee), Args(args) {}
+
+tpp::TypePtr tpp::CallExpression::GetType() const { error(Location, "TODO"); }
 
 tpp::IndexExpression::IndexExpression(const SourceLocation &location, const ExprPtr &array, const ExprPtr &index) : Expression(location), Array(array), Index(index) {}
 
+tpp::TypePtr tpp::IndexExpression::GetType() const { return std::dynamic_pointer_cast<ArrayType>(Array->GetType())->Base; }
+
 tpp::MemberExpression::MemberExpression(const SourceLocation &location, const ExprPtr &object, const std::string &member) : Expression(location), Object(object), Member(member) {}
+
+tpp::TypePtr tpp::MemberExpression::GetType() const { error(Location, "TODO"); }
 
 tpp::IDExpression::IDExpression(const SourceLocation &location, const Name &name) : Expression(location), MName(name) {}
 
+tpp::TypePtr tpp::IDExpression::GetType() const { error(Location, "TODO"); }
+
 tpp::NumberExpression::NumberExpression(const SourceLocation &location, const std::string &value) : Expression(location), Value(std::stod(value)) {}
+
+tpp::TypePtr tpp::NumberExpression::GetType() const { return Type::Get("f64"); }
 
 tpp::CharExpression::CharExpression(const SourceLocation &location, const std::string &value) : Expression(location), Value(value[0]) {}
 
+tpp::TypePtr tpp::CharExpression::GetType() const { return Type::Get("i8"); }
+
 tpp::StringExpression::StringExpression(const SourceLocation &location, const std::string &value) : Expression(location), Value(value) {}
+
+tpp::TypePtr tpp::StringExpression::GetType() const { return Type::GetArray(Type::Get("i8")); }
 
 tpp::VarArgsExpression::VarArgsExpression(const SourceLocation &location) : Expression(location) {}
 
+tpp::TypePtr tpp::VarArgsExpression::GetType() const { error(Location, "TODO"); }
+
 tpp::UnaryExpression::UnaryExpression(const SourceLocation &location, const std::string &op, const ExprPtr &operand) : Expression(location), Operator(op), Operand(operand) {}
+
+tpp::TypePtr tpp::UnaryExpression::GetType() const { error(Location, "TODO"); }
 
 tpp::ObjectExpression::ObjectExpression(const SourceLocation &location, const std::vector<ExprPtr> &init) : Expression(location), Init(init) {}
 
+tpp::TypePtr tpp::ObjectExpression::GetType() const { error(Location, "TODO"); }
+
 tpp::ArrayExpression::ArrayExpression(const SourceLocation &location, const ExprPtr &size, const ExprPtr &init) : Expression(location), Size(size), Init(init) {}
+
+tpp::TypePtr tpp::ArrayExpression::GetType() const
+{
+	if (Init) return Type::GetArray(Init->GetType());
+	error(Location, "TODO");
+}
 
 std::ostream &tpp::operator<<(std::ostream &out, const ExprPtr &ptr)
 {
@@ -138,7 +188,7 @@ std::ostream &tpp::operator<<(std::ostream &out, const DefFunctionExpression &e)
 		if (i > 0) out << ", ";
 		out << e.Args[i];
 	}
-	if (e.VarArg)
+	if (e.IsVarArg)
 	{
 		if (!e.Args.empty()) out << ", ";
 		out << '?';
@@ -151,7 +201,7 @@ std::ostream &tpp::operator<<(std::ostream &out, const DefFunctionExpression &e)
 std::ostream &tpp::operator<<(std::ostream &out, const DefVariableExpression &e)
 {
 	out << "def ";
-	if (e.MType) out << e.MType << ' ';
+	if (e.Type) out << e.Type << ' ';
 	out << e.MName;
 	if (e.Size) out << '[' << e.Size << ']';
 	if (e.Init) out << " = " << e.Init;

@@ -15,6 +15,8 @@ namespace tpp
 		explicit Expression(const SourceLocation &location);
 		virtual ~Expression();
 
+		virtual TypePtr GetType() const = 0;
+
 		SourceLocation Location;
 	};
 
@@ -23,18 +25,22 @@ namespace tpp
 		DefStructExpression();
 		DefStructExpression(const SourceLocation &location, const Name &name, const std::vector<StructField> &fields);
 
+		TypePtr GetType() const override;
+
 		Name MName;
 		std::vector<StructField> Fields;
 	};
 
 	struct DefFunctionExpression : Expression
 	{
-		DefFunctionExpression(const SourceLocation &location, const TypePtr &result, const Name &name, const std::vector<Arg> &args, bool var_arg, const ExprPtr &body);
+		DefFunctionExpression(const SourceLocation &location, const TypePtr &result, const Name &name, const std::vector<Arg> &args, bool is_var_arg, const ExprPtr &body);
+
+		TypePtr GetType() const override;
 
 		TypePtr Result;
 		Name MName;
 		std::vector<Arg> Args;
-		bool VarArg;
+		bool IsVarArg;
 		ExprPtr Body;
 	};
 
@@ -42,7 +48,9 @@ namespace tpp
 	{
 		DefVariableExpression(const SourceLocation &location, const TypePtr &type, const Name &name, const ExprPtr &size, const ExprPtr &init);
 
-		TypePtr MType;
+		TypePtr GetType() const override;
+
+		TypePtr Type;
 		Name MName;
 		ExprPtr Size;
 		ExprPtr Init;
@@ -52,12 +60,16 @@ namespace tpp
 	{
 		ReturnExpression(const SourceLocation &location, const ExprPtr &result);
 
+		TypePtr GetType() const override;
+
 		ExprPtr Result;
 	};
 
 	struct ForExpression : Expression
 	{
 		ForExpression(const SourceLocation &location, const ExprPtr &from, const ExprPtr &to, const ExprPtr &step, const std::string &id, const ExprPtr &body);
+
+		TypePtr GetType() const override;
 
 		ExprPtr From;
 		ExprPtr To;
@@ -70,6 +82,8 @@ namespace tpp
 	{
 		WhileExpression(const SourceLocation &location, const ExprPtr &condition, const ExprPtr &body);
 
+		TypePtr GetType() const override;
+
 		ExprPtr Condition;
 		ExprPtr Body;
 	};
@@ -77,6 +91,8 @@ namespace tpp
 	struct IfExpression : Expression
 	{
 		IfExpression(const SourceLocation &location, const ExprPtr &condition, const ExprPtr &branchTrue, const ExprPtr &branchFalse);
+
+		TypePtr GetType() const override;
 
 		ExprPtr Condition;
 		ExprPtr BranchTrue;
@@ -87,12 +103,16 @@ namespace tpp
 	{
 		GroupExpression(const SourceLocation &location, const std::vector<ExprPtr> &body);
 
+		TypePtr GetType() const override;
+
 		std::vector<ExprPtr> Body;
 	};
 
 	struct BinaryExpression : Expression
 	{
 		BinaryExpression(const SourceLocation &location, const std::string &op, const ExprPtr &lhs, const ExprPtr &rhs);
+
+		TypePtr GetType() const override;
 
 		std::string Operator;
 		ExprPtr Lhs;
@@ -103,6 +123,8 @@ namespace tpp
 	{
 		CallExpression(const SourceLocation &location, const Name &callee, const std::vector<ExprPtr> &args);
 
+		TypePtr GetType() const override;
+
 		Name Callee;
 		std::vector<ExprPtr> Args;
 	};
@@ -110,6 +132,8 @@ namespace tpp
 	struct IndexExpression : Expression
 	{
 		IndexExpression(const SourceLocation &location, const ExprPtr &array, const ExprPtr &index);
+
+		TypePtr GetType() const override;
 
 		ExprPtr Array;
 		ExprPtr Index;
@@ -119,6 +143,8 @@ namespace tpp
 	{
 		MemberExpression(const SourceLocation &location, const ExprPtr &object, const std::string &member);
 
+		TypePtr GetType() const override;
+
 		ExprPtr Object;
 		std::string Member;
 	};
@@ -127,12 +153,16 @@ namespace tpp
 	{
 		IDExpression(const SourceLocation &location, const Name &name);
 
+		TypePtr GetType() const override;
+
 		Name MName;
 	};
 
 	struct NumberExpression : Expression
 	{
 		NumberExpression(const SourceLocation &location, const std::string &value);
+
+		TypePtr GetType() const override;
 
 		double Value;
 	};
@@ -141,6 +171,8 @@ namespace tpp
 	{
 		CharExpression(const SourceLocation &location, const std::string &value);
 
+		TypePtr GetType() const override;
+
 		char Value;
 	};
 
@@ -148,17 +180,23 @@ namespace tpp
 	{
 		StringExpression(const SourceLocation &location, const std::string &value);
 
+		TypePtr GetType() const override;
+
 		std::string Value;
 	};
 
 	struct VarArgsExpression : Expression
 	{
 		explicit VarArgsExpression(const SourceLocation &location);
+
+		TypePtr GetType() const override;
 	};
 
 	struct UnaryExpression : Expression
 	{
 		UnaryExpression(const SourceLocation &location, const std::string &op, const ExprPtr &operand);
+
+		TypePtr GetType() const override;
 
 		std::string Operator;
 		ExprPtr Operand;
@@ -168,12 +206,16 @@ namespace tpp
 	{
 		ObjectExpression(const SourceLocation &location, const std::vector<ExprPtr> &init);
 
+		TypePtr GetType() const override;
+
 		std::vector<ExprPtr> Init;
 	};
 
 	struct ArrayExpression : Expression
 	{
 		ArrayExpression(const SourceLocation &location, const ExprPtr &size, const ExprPtr &init);
+
+		TypePtr GetType() const override;
 
 		ExprPtr Size;
 		ExprPtr Init;

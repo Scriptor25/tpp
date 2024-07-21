@@ -21,7 +21,7 @@
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "args": [
-                "examples/pathtracer/main.t++"
+                "examples/simple/fib.t++"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}"

@@ -17,6 +17,8 @@ namespace tpp
 		Name(const std::vector<std::string> &ns, const Name &name);
 
 		std::string String() const;
+		std::vector<std::string> Namespace();
+		std::string Head();
 
 		bool operator!() const;
 

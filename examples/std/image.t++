@@ -1,12 +1,12 @@
 include "std.t++"
 
-:image
 def image {
     i32 width,
     i32 height,
     [i32] pixels
 }
 
+:image
 # Read Image #
 def read(image self, [i8] filename)
 

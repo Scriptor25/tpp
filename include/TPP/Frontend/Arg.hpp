@@ -1,16 +1,15 @@
 #pragma once
 
 #include <TPP/Frontend/Frontend.hpp>
-#include <TPP/Frontend/Name.hpp>
 
 namespace tpp
 {
 	struct Arg
 	{
-		Arg(const TypePtr &type, const Name &name);
+		Arg(const TypePtr &type, const std::string &name);
 
-		TypePtr MType;
-		Name MName;
+		TypePtr Type;
+		std::string Name;
 	};
 
 	std::ostream &operator<<(std::ostream &out, const Arg &arg);

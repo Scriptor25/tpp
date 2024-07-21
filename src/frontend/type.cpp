@@ -1,13 +1,11 @@
 #include <TPP/Frontend/Frontend.hpp>
-#include <TPP/Frontend/Name.hpp>
 #include <TPP/Frontend/Type.hpp>
 #include <map>
 #include <memory>
 
-std::map<tpp::Name, tpp::TypePtr> types;
-std::map<tpp::TypePtr, tpp::ArrayTypePtr> array_types;
+std::map<std::string, tpp::TypePtr> types;
 
-tpp::TypePtr tpp::Type::Get(const Name &name)
+tpp::TypePtr tpp::Type::Get(const std::string &name)
 {
 	auto &ref = types[name];
 	if (ref) return ref;
@@ -16,23 +14,37 @@ tpp::TypePtr tpp::Type::Get(const Name &name)
 
 tpp::TypePtr tpp::Type::GetArray(const TypePtr &base)
 {
-	auto &ref = array_types[base];
+	std::string name = '[' + base->Name + ']';
+	auto &ref = types[name];
 	if (ref) return ref;
-	return ref = std::make_shared<ArrayType>(base);
+	return ref = std::make_shared<ArrayType>(name, base);
 }
 
-tpp::Type::Type(const Name &name) : MName(name) {}
+tpp::TypePtr tpp::Type::GetFunction(const TypePtr &result, const std::vector<TypePtr> &args, bool is_var_arg)
+{
+	std::string args_string;
+	for (size_t i = 0; i < args.size(); ++i)
+	{
+		if (i > 0) args_string += ',';
+		args_string += args[i]->Name;
+	}
+
+	std::string name = result->Name + '(' + args_string + ')';
+	auto &ref = types[name];
+	if (ref) return ref;
+	return ref = std::make_shared<FunctionType>(name, result, args, is_var_arg);
+}
+
+tpp::Type::Type(const std::string &name) : Name(name) {}
 
 tpp::Type::~Type() = default;
 
-tpp::ArrayType::ArrayType(const TypePtr &base) : Type({ base->MName, "[]" }), Base(base) {}
+tpp::ArrayType::ArrayType(const std::string &name, const TypePtr &base) : Type(name), Base(base) {}
+
+tpp::FunctionType::FunctionType(const std::string &name, const TypePtr &result, const std::vector<TypePtr> &args, bool is_var_arg) : Type(name), Result(result), Args(args), IsVarArg(is_var_arg) {}
 
 std::ostream &tpp::operator<<(std::ostream &out, const TypePtr &ptr)
 {
 	if (!ptr) return out;
-	if (auto p = std::dynamic_pointer_cast<ArrayType>(ptr)) return out << *p;
-
-	return out << ptr->MName;
+	return out << ptr->Name;
 }
-
-std::ostream &tpp::operator<<(std::ostream &out, const ArrayType &type) { return out << '[' << type.Base << ']'; }

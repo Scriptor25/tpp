@@ -17,12 +17,14 @@ std::map<std::string, unsigned> tpp::Parser::PRECEDENCES = {
 
 void tpp::Parser::ParseFile(const std::filesystem::path &filepath, std::vector<std::filesystem::path> &parsed, const TPPCallback &callback)
 {
-	if (std::find(parsed.begin(), parsed.end(), filepath) != parsed.end()) return;
-	parsed.push_back(filepath);
+	auto fp = std::filesystem::canonical(filepath);
 
-	std::ifstream stream(filepath);
-	if (!stream.is_open()) error(SourceLocation::UNKNOWN, "failed to open file: %s", filepath.string().c_str());
-	Parser parser(stream, filepath, parsed, callback);
+	if (std::find(parsed.begin(), parsed.end(), fp) != parsed.end()) return;
+	parsed.push_back(fp);
+
+	std::ifstream stream(fp);
+	if (!stream.is_open()) error(SourceLocation::UNKNOWN, "failed to open file: %s", fp.string().c_str());
+	Parser parser(stream, fp, parsed, callback);
 	for (ExprPtr expression; (expression = parser.GetNext());) { callback(expression); }
 }
 
@@ -334,7 +336,7 @@ tpp::TypePtr tpp::Parser::ParseType()
 	}
 
 	auto name = ParseName();
-	return Type::Get(name);
+	return Type::Get(name.String());
 }
 
 tpp::ExprPtr tpp::Parser::Parse()
@@ -357,7 +359,7 @@ tpp::ExprPtr tpp::Parser::ParseDef()
 	{
 		if (NextIfAt("{"))
 		{
-			name = m_InFunction ? type->MName : Name{ m_Namespace, type->MName };
+			name = m_InFunction ? Name{ type->Name } : Name{ m_Namespace, type->Name };
 
 			std::vector<StructField> fields;
 			while (!NextIfAt("}"))
@@ -376,7 +378,7 @@ tpp::ExprPtr tpp::Parser::ParseDef()
 	}
 	else
 	{
-		name = type->MName;
+		name = type->Name;
 		type = {};
 	}
 
@@ -397,7 +399,7 @@ tpp::ExprPtr tpp::Parser::ParseDef()
 			}
 
 			auto arg_type = ParseType();
-			auto arg_name = ParseName();
+			auto arg_name = Expect(TokenType_Id).Value;
 			args.emplace_back(arg_type, arg_name);
 			if (!At(")")) Expect(",");
 		}
