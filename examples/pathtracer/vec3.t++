@@ -1,6 +1,6 @@
 include "../std/std.t++"
 
-def vec3 {
+struct vec3 {
     [f64] e = [3, 0]
 }
 

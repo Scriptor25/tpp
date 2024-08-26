@@ -1,6 +1,6 @@
 include "vec3.t++"
 
-def ray {
+struct ray {
     vec3 origin,
     vec3 direction
 }

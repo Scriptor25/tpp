@@ -9,7 +9,7 @@ def palette = " .,-~:;=!*#$@"
 def f64 scale(f64 x, f64 xmin, f64 xmax, f64 min, f64 max) = min + (max - min) * (xmax - x) / (xmax - xmin)
 def f64 clamp(f64 x, f64 min, f64 max) = if [x < min] min else if [x > max] max else x
 
-def i32 main([[i8]] args) = (
+def i32 main(i32 argc, [[i8]] argv) = (
     for [0, height]: j (
         for [0, width]: i (
             def f64 t

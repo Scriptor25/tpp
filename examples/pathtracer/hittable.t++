@@ -1,6 +1,6 @@
 include "vec3.t++"
 
-def hit_record {
+struct hit_record {
     vec3 p,
     vec3 normal,
     f64 t,
@@ -17,13 +17,13 @@ def set_face_normal(hit_record self, ray r, vec3 outward_normal) = (
 )
 :hit_record
 
-def sphere {}
-def hittable_list {}
+struct sphere {}
+struct hittable_list {}
 
 def i1 sphere:hit(sphere self, ray r, interval ray_t, hit_record rec)
 def i1 hittable_list:hit(hittable_list self, ray r, interval ray_t, hit_record rec)
 
-def hittable {}
+struct hittable
 
 :hittable
 def i1 hit(hittable self, ray r, interval ray_t, hit_record rec) = (

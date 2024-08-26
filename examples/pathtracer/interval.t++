@@ -1,6 +1,6 @@
 include "common.t++"
 
-def interval {
+struct interval {
     f64 min = infinity,
     f64 max = -infinity
 }

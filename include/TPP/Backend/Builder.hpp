@@ -27,7 +27,7 @@ namespace tpp
 	class Builder
 	{
 	public:
-		Builder();
+		Builder(const std::string& source_filename);
 
 		llvm::LLVMContext &Context() const;
 		llvm::Module &Module() const;
@@ -46,6 +46,8 @@ namespace tpp
 	private:
 		void Push();
 		void Pop();
+
+		ValuePtr DefineVariable(const Name &name, const TypePtr &type, const ValuePtr &value);
 
 		TypePtr GetHigherOrder(const TypePtr &a, const TypePtr &b);
 
@@ -66,7 +68,6 @@ namespace tpp
 		ValuePtr CreateDiv(const ValuePtr &lhs, const ValuePtr &rhs);
 		ValuePtr CreateRem(const ValuePtr &lhs, const ValuePtr &rhs);
 
-		ValuePtr GenIR(const DefStructExpression &e);
 		ValuePtr GenIR(const DefFunctionExpression &e);
 		ValuePtr GenIR(const DefVariableExpression &e);
 		ValuePtr GenIR(const ForExpression &e);
@@ -95,7 +96,6 @@ namespace tpp
 
 		llvm::Function *m_Global;
 
-		std::map<llvm::Type *, DefStructExpression> m_Types;
 		std::map<llvm::Function *, FunctionInfo> m_FunctionInfos;
 
 		std::vector<std::map<std::string, ValuePtr>> m_Stack;

@@ -1,7 +1,7 @@
 include "interval.t++"
 include "hittable.t++"
 
-def sphere {
+struct sphere {
     vec3 center,
     f64 radius,
     material mat

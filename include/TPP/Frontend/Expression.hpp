@@ -4,7 +4,6 @@
 #include <TPP/Frontend/Frontend.hpp>
 #include <TPP/Frontend/Name.hpp>
 #include <TPP/Frontend/SourceLocation.hpp>
-#include <TPP/Frontend/StructField.hpp>
 #include <string>
 #include <vector>
 
@@ -18,17 +17,6 @@ namespace tpp
 		virtual TypePtr GetType() const = 0;
 
 		SourceLocation Location;
-	};
-
-	struct DefStructExpression : Expression
-	{
-		DefStructExpression();
-		DefStructExpression(const SourceLocation &location, const Name &name, const std::vector<StructField> &fields);
-
-		TypePtr GetType() const override;
-
-		Name MName;
-		std::vector<StructField> Fields;
 	};
 
 	struct DefFunctionExpression : Expression
@@ -221,7 +209,6 @@ namespace tpp
 		ExprPtr Init;
 	};
 
-	std::ostream &operator<<(std::ostream &out, const DefStructExpression &e);
 	std::ostream &operator<<(std::ostream &out, const DefFunctionExpression &e);
 	std::ostream &operator<<(std::ostream &out, const DefVariableExpression &e);
 	std::ostream &operator<<(std::ostream &out, const ReturnExpression &e);

@@ -83,7 +83,7 @@ def i64 render_frame(f64 A, f64 B) = (
     millis() - start
 )
 
-def i32 main([[i8]] argv) = (
+def i32 main(i32 argc, [[i8]] argv) = (
 
     printf("\x1B\x9BH\x1B\x9BJ")
 

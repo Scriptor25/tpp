@@ -56,6 +56,7 @@ namespace tpp
 
 		void ParseInclude();
 		void ParseNamespace();
+		void ParseStruct();
 
 		Name ParseName();
 		TypePtr ParseType();

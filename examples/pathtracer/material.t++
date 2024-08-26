@@ -1,6 +1,6 @@
 include "ray.t++"
 
-def lambertian {
+struct lambertian {
     vec3 albedo
 }
 
@@ -19,7 +19,7 @@ def i1 scatter(lambertian self, ray r_in, hit_record rec, vec3 attenuation, ray 
 )
 :lambertian
 
-def metal {
+struct metal {
     vec3 albedo
 }
 
@@ -34,7 +34,7 @@ def i1 scatter(metal self, ray r_in, hit_record rec, vec3 attenuation, ray scatt
 )
 :metal
 
-def material {}
+struct material
 
 :material
 def i1 scatter(material self, ray r_in, hit_record rec, vec3 attenuation, ray scattered) = (

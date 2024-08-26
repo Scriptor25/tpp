@@ -1,6 +1,6 @@
 include "hittable.t++"
 
-def hittable_list {
+struct hittable_list {
     [hittable] objects
 }
 

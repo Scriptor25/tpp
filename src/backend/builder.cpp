@@ -1,23 +1,28 @@
-#include "llvm/Support/raw_ostream.h"
 #include <TPP/Backend/Builder.hpp>
 #include <TPP/Backend/Value.hpp>
 #include <TPP/Frontend/Expression.hpp>
 #include <TPP/Frontend/Frontend.hpp>
 #include <TPP/Frontend/SourceLocation.hpp>
+#include <TPP/Frontend/StructElement.hpp>
 #include <TPP/Frontend/Type.hpp>
 #include <cstddef>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Verifier.h>
+#include <llvm/Support/raw_ostream.h>
 #include <memory>
 #include <vector>
 
-tpp::Builder::Builder()
+tpp::Builder::Builder(const std::string &source_filename)
 {
 	m_Context = std::make_unique<llvm::LLVMContext>();
 	m_Module = std::make_unique<llvm::Module>("module", *m_Context);
 	m_Builder = std::make_unique<llvm::IRBuilder<>>(*m_Context);
+
+	m_Module->setSourceFileName(source_filename);
+
+	Type::Init();
 
 	{
 		auto function_type = llvm::FunctionType::get(IRBuilder().getVoidTy(), false);
@@ -39,7 +44,6 @@ tpp::ValuePtr tpp::Builder::GenIR(const ExprPtr &ptr)
 {
 	if (!ptr) return nullptr;
 
-	if (auto p = std::dynamic_pointer_cast<DefStructExpression>(ptr)) return GenIR(*p);
 	if (auto p = std::dynamic_pointer_cast<DefFunctionExpression>(ptr)) return GenIR(*p);
 	if (auto p = std::dynamic_pointer_cast<DefVariableExpression>(ptr)) return GenIR(*p);
 	if (auto p = std::dynamic_pointer_cast<ForExpression>(ptr)) return GenIR(*p);
@@ -78,16 +82,23 @@ llvm::Type *tpp::Builder::GenIR(const TypePtr &ptr)
 		return llvm::FunctionType::get(result, args, p->IsVarArg);
 	}
 
-	if (ptr == Type::Get("void")) return IRBuilder().getVoidTy();
-	if (ptr == Type::Get("i1")) return IRBuilder().getInt1Ty();
-	if (ptr == Type::Get("i8")) return IRBuilder().getInt8Ty();
-	if (ptr == Type::Get("i16")) return IRBuilder().getInt16Ty();
-	if (ptr == Type::Get("i32")) return IRBuilder().getInt32Ty();
-	if (ptr == Type::Get("i64")) return IRBuilder().getInt64Ty();
-	if (ptr == Type::Get("i128")) return IRBuilder().getInt128Ty();
-	if (ptr == Type::Get("f16")) return IRBuilder().getHalfTy();
-	if (ptr == Type::Get("f32")) return IRBuilder().getFloatTy();
-	if (ptr == Type::Get("f64")) return IRBuilder().getDoubleTy();
+	if (auto p = std::dynamic_pointer_cast<StructType>(ptr))
+	{
+		std::vector<llvm::Type *> elements(p->Elements.size());
+		for (size_t i = 0; i < elements.size(); ++i) elements[i] = GenIR(p->Elements[i].MType);
+		return llvm::StructType::get(Context(), elements);
+	}
+
+	if (ptr == Type::GetI1()) return IRBuilder().getInt1Ty();
+	if (ptr == Type::GetI8()) return IRBuilder().getInt8Ty();
+	if (ptr == Type::GetI16()) return IRBuilder().getInt16Ty();
+	if (ptr == Type::GetI32()) return IRBuilder().getInt32Ty();
+	if (ptr == Type::GetI64()) return IRBuilder().getInt64Ty();
+	if (ptr == Type::GetI128()) return IRBuilder().getInt128Ty();
+	if (ptr == Type::GetF16()) return IRBuilder().getHalfTy();
+	if (ptr == Type::GetF32()) return IRBuilder().getFloatTy();
+	if (ptr == Type::GetF64()) return IRBuilder().getDoubleTy();
+	if (ptr == Type::GetVoid()) return IRBuilder().getVoidTy();
 
 	if (auto type = llvm::StructType::getTypeByName(Context(), ptr->Name)) return type;
 
@@ -140,6 +151,20 @@ void tpp::Builder::Pop()
 {
 	m_Variables = m_Stack.back();
 	m_Stack.pop_back();
+}
+
+tpp::ValuePtr tpp::Builder::DefineVariable(const Name &name, const TypePtr &type, const ValuePtr &value)
+{
+	ValuePtr var;
+	if (IsGlobal())
+	{
+		auto ptr = Module().getOrInsertGlobal(name.String(), GenIR(type));
+		auto lvalue = LValue::Create(*this, type, ptr);
+		if (value) lvalue->Store(value);
+		var = lvalue;
+	}
+	else { var = LValue::Alloca(*this, type, value); }
+	return m_Variables[name.String()] = var;
 }
 
 tpp::TypePtr tpp::Builder::GetHigherOrder(const TypePtr &a, const TypePtr &b)
@@ -204,8 +229,8 @@ tpp::ValuePtr tpp::Builder::CreateLT(const ValuePtr &lhs, const ValuePtr &rhs)
 {
 	auto ir_type = lhs->GetIRType();
 
-	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateICmpSLT(lhs->Get(), rhs->Get()));
-	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateFCmpOLT(lhs->Get(), rhs->Get()));
+	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateICmpSLT(lhs->Get(), rhs->Get()));
+	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateFCmpOLT(lhs->Get(), rhs->Get()));
 
 	return {};
 }
@@ -214,8 +239,8 @@ tpp::ValuePtr tpp::Builder::CreateGT(const ValuePtr &lhs, const ValuePtr &rhs)
 {
 	auto ir_type = lhs->GetIRType();
 
-	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateICmpSGT(lhs->Get(), rhs->Get()));
-	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateFCmpOGT(lhs->Get(), rhs->Get()));
+	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateICmpSGT(lhs->Get(), rhs->Get()));
+	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateFCmpOGT(lhs->Get(), rhs->Get()));
 
 	return {};
 }
@@ -224,8 +249,8 @@ tpp::ValuePtr tpp::Builder::CreateLE(const ValuePtr &lhs, const ValuePtr &rhs)
 {
 	auto ir_type = lhs->GetIRType();
 
-	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateICmpSLE(lhs->Get(), rhs->Get()));
-	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateFCmpOLE(lhs->Get(), rhs->Get()));
+	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateICmpSLE(lhs->Get(), rhs->Get()));
+	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateFCmpOLE(lhs->Get(), rhs->Get()));
 
 	return {};
 }
@@ -234,8 +259,8 @@ tpp::ValuePtr tpp::Builder::CreateGE(const ValuePtr &lhs, const ValuePtr &rhs)
 {
 	auto ir_type = lhs->GetIRType();
 
-	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateICmpSGE(lhs->Get(), rhs->Get()));
-	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateFCmpOGE(lhs->Get(), rhs->Get()));
+	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateICmpSGE(lhs->Get(), rhs->Get()));
+	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateFCmpOGE(lhs->Get(), rhs->Get()));
 
 	return {};
 }
@@ -244,8 +269,8 @@ tpp::ValuePtr tpp::Builder::CreateEQ(const ValuePtr &lhs, const ValuePtr &rhs)
 {
 	auto ir_type = lhs->GetIRType();
 
-	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateICmpEQ(lhs->Get(), rhs->Get()));
-	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateFCmpOEQ(lhs->Get(), rhs->Get()));
+	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateICmpEQ(lhs->Get(), rhs->Get()));
+	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateFCmpOEQ(lhs->Get(), rhs->Get()));
 
 	return {};
 }
@@ -254,8 +279,8 @@ tpp::ValuePtr tpp::Builder::CreateNE(const ValuePtr &lhs, const ValuePtr &rhs)
 {
 	auto ir_type = lhs->GetIRType();
 
-	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateICmpNE(lhs->Get(), rhs->Get()));
-	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::Get("i1"), IRBuilder().CreateFCmpONE(lhs->Get(), rhs->Get()));
+	if (ir_type->isIntegerTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateICmpNE(lhs->Get(), rhs->Get()));
+	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, Type::GetI1(), IRBuilder().CreateFCmpONE(lhs->Get(), rhs->Get()));
 
 	return {};
 }
@@ -313,40 +338,6 @@ tpp::ValuePtr tpp::Builder::CreateRem(const ValuePtr &lhs, const ValuePtr &rhs)
 	if (ir_type->isFloatingPointTy()) return RValue::Create(*this, type, IRBuilder().CreateFRem(lhs->Get(), rhs->Get()));
 
 	return {};
-}
-
-tpp::ValuePtr tpp::Builder::GenIR(const DefStructExpression &e)
-{
-	auto struct_type = llvm::StructType::getTypeByName(Context(), e.MName.String());
-
-	if (e.Fields.empty()) // Opaque Type
-	{
-		if (struct_type) return nullptr;
-
-		struct_type = llvm::StructType::create(Context(), e.MName.String());
-		m_Types[struct_type] = e;
-		return nullptr;
-	}
-
-	if (struct_type)
-	{
-		if (!struct_type->isOpaque()) error(e.Location, "non-opaque type cannot be redefined");
-
-		std::vector<llvm::Type *> elements(e.Fields.size());
-		for (size_t i = 0; i < elements.size(); ++i) elements[i] = GenIR(e.Fields[i].MType);
-
-		struct_type->setBody(elements);
-
-		m_Types[struct_type] = e;
-		return nullptr;
-	}
-
-	std::vector<llvm::Type *> elements(e.Fields.size());
-	for (size_t i = 0; i < elements.size(); ++i) elements[i] = GenIR(e.Fields[i].MType);
-	struct_type = llvm::StructType::create(Context(), elements, e.MName.String());
-
-	m_Types[struct_type] = e;
-	return nullptr;
 }
 
 tpp::ValuePtr tpp::Builder::GenIR(const DefFunctionExpression &e)
@@ -410,16 +401,7 @@ tpp::ValuePtr tpp::Builder::GenIR(const DefVariableExpression &e)
 	auto init = e.Init ? GenIR(e.Init) : nullptr;
 	auto type = e.Type ? e.Type : init->GetType();
 
-	ValuePtr value;
-	if (IsGlobal())
-	{
-		auto ptr = Module().getOrInsertGlobal(e.MName.String(), GenIR(type));
-		auto lvalue = LValue::Create(*this, type, ptr);
-		if (init) lvalue->Store(init);
-		value = lvalue;
-	}
-	else { value = LValue::Alloca(*this, type, init); }
-	return m_Variables[e.MName.String()] = value;
+	return DefineVariable(e.MName, type, init);
 }
 
 tpp::ValuePtr tpp::Builder::GenIR(const ForExpression &e)
@@ -526,19 +508,21 @@ tpp::ValuePtr tpp::Builder::GenIR(const CallExpression &e)
 tpp::ValuePtr tpp::Builder::GenIR(const IndexExpression &e)
 {
 	auto array = GenIR(e.Array);
-	auto index = CreateCast(GenIR(e.Index), Type::Get("i64"));
+	auto index = CreateCast(GenIR(e.Index), Type::GetI64());
 
 	auto array_type = std::dynamic_pointer_cast<ArrayType>(array->GetType());
 	if (!array_type) error(e.Location, "cannot index into non-array type: %s", array->GetType()->Name.c_str());
 	auto element_type = array_type->Base;
 
-	auto ptr = IRBuilder().CreateGEP(GenIR(element_type), array->Get(), { IRBuilder().getInt64(0), index->Get() });
+	auto ptr = IRBuilder().CreateGEP(GenIR(element_type), array->Get(), { index->Get() });
 	return LValue::Create(*this, element_type, ptr);
 }
 
 tpp::ValuePtr tpp::Builder::GenIR(const MemberExpression &e)
 {
 	auto object = GenIR(e.Object);
+
+	if (e.Member == "string") error(e.Location, "TODO");
 
 	if (auto t = std::dynamic_pointer_cast<ArrayType>(object->GetType()))
 	{
@@ -560,7 +544,7 @@ tpp::ValuePtr tpp::Builder::GenIR(const CharExpression &e) { error(e.Location, "
 
 tpp::ValuePtr tpp::Builder::GenIR(const StringExpression &e)
 {
-	auto ptr = IRBuilder().CreateGlobalStringPtr(e.Value);
+	auto ptr = IRBuilder().CreateGlobalString(e.Value);
 	return RValue::Create(*this, e.GetType(), ptr);
 }
 

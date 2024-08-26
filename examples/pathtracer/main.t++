@@ -11,7 +11,7 @@ include "ray.t++"
 include "sphere.t++"
 include "vec3.t++"
 
-def i32 main([[i8]] args) = (
+def i32 main(i32 argc, [[i8]] argv) = (
 
     def hittable_list world
 

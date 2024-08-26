@@ -12,7 +12,7 @@ namespace tpp
 	struct Token;
 	struct Expression;
 
-	struct StructField;
+	struct StructElement;
 	struct Arg;
 
 	struct Type;

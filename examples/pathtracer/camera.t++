@@ -5,7 +5,7 @@ include "material.t++"
 include "ray.t++"
 include "vec3.t++"
 
-def camera {
+struct camera {
     # public #
     f64 aspect_ratio = 1,
     i32 image_width = 100,

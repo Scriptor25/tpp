@@ -2,7 +2,7 @@
 #include <TPP/Frontend/Frontend.hpp>
 #include <TPP/Frontend/Parser.hpp>
 #include <TPP/Frontend/SourceLocation.hpp>
-#include <TPP/Frontend/StructField.hpp>
+#include <TPP/Frontend/StructElement.hpp>
 #include <TPP/Frontend/Type.hpp>
 #include <fstream>
 #include <memory>
@@ -52,6 +52,11 @@ tpp::ExprPtr tpp::Parser::GetNext()
 		if (At(":"))
 		{
 			ParseNamespace();
+			continue;
+		}
+		if (At("struct"))
+		{
+			ParseStruct();
 			continue;
 		}
 		return Parse();
@@ -315,6 +320,26 @@ void tpp::Parser::ParseNamespace()
 		m_Namespace.pop_back();
 }
 
+void tpp::Parser::ParseStruct()
+{
+	Expect("struct");
+	auto name = Expect(TokenType_Id).Value;
+
+	std::vector<StructElement> elements;
+	if (NextIfAt("{"))
+		while (!NextIfAt("}"))
+		{
+			auto etype = ParseType();
+			auto ename = ParseName();
+			ExprPtr einit;
+			if (NextIfAt("=")) einit = Parse();
+			elements.emplace_back(etype, ename, einit);
+			if (!At("}")) Expect(",");
+		}
+
+	Type::CreateStruct(name, elements);
+}
+
 tpp::Name tpp::Parser::ParseName()
 {
 	std::vector<std::string> path;
@@ -335,8 +360,8 @@ tpp::TypePtr tpp::Parser::ParseType()
 		return Type::GetArray(base);
 	}
 
-	auto name = ParseName();
-	return Type::Get(name.String());
+	auto name = Expect(TokenType_Id).Value;
+	return Type::Get(name, true);
 }
 
 tpp::ExprPtr tpp::Parser::Parse()
@@ -355,27 +380,7 @@ tpp::ExprPtr tpp::Parser::ParseDef()
 	auto type = ParseType();
 	Name name;
 
-	if (!(At("=") || At("(") || At("[")))
-	{
-		if (NextIfAt("{"))
-		{
-			name = m_InFunction ? Name{ type->Name } : Name{ m_Namespace, type->Name };
-
-			std::vector<StructField> fields;
-			while (!NextIfAt("}"))
-			{
-				auto field_type = ParseType();
-				auto field_name = ParseName();
-				ExprPtr field_init;
-				if (NextIfAt("=")) field_init = Parse();
-				fields.emplace_back(field_type, field_name, field_init);
-				if (!At("}")) Expect(",");
-			}
-			return std::make_shared<DefStructExpression>(location, name, fields);
-		}
-
-		name = ParseName();
-	}
+	if (!(At("=") || At("(") || At("["))) { name = ParseName(); }
 	else
 	{
 		name = type->Name;

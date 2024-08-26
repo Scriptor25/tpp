@@ -14,13 +14,15 @@ int main(const int argc, const char **argv)
 	}
 
 	const std::string filename = argv[1];
-	tpp::Builder builder;
+	tpp::Builder builder(filename);
 
 	tpp::Parser::ParseFile(
 		filename,
 		[&builder](const tpp::ExprPtr &ptr)
 		{
-			std::cout << ptr << std::endl;
+			// std::cout << ptr << std::endl;
 			builder.GenIR(ptr);
 		});
+
+	builder.Module().print(llvm::outs(), nullptr);
 }

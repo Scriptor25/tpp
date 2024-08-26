@@ -12,12 +12,6 @@ tpp::Expression::Expression(const SourceLocation &location) : Location(location)
 
 tpp::Expression::~Expression() = default;
 
-tpp::DefStructExpression::DefStructExpression() : Expression(SourceLocation::UNKNOWN) {}
-
-tpp::DefStructExpression::DefStructExpression(const SourceLocation &location, const Name &name, const std::vector<StructField> &fields) : Expression(location), MName(name), Fields(fields) {}
-
-tpp::TypePtr tpp::DefStructExpression::GetType() const { return Type::Get("void"); }
-
 tpp::DefFunctionExpression::DefFunctionExpression(const SourceLocation &location, const TypePtr &result, const Name &name, const std::vector<Arg> &args, bool is_var_arg, const ExprPtr &body)
 	: Expression(location), Result(result), MName(name), Args(args), IsVarArg(is_var_arg), Body(body)
 {
@@ -85,15 +79,15 @@ tpp::TypePtr tpp::IDExpression::GetType() const { error(Location, "TODO"); }
 
 tpp::NumberExpression::NumberExpression(const SourceLocation &location, const std::string &value) : Expression(location), Value(std::stod(value)) {}
 
-tpp::TypePtr tpp::NumberExpression::GetType() const { return Type::Get("f64"); }
+tpp::TypePtr tpp::NumberExpression::GetType() const { return Type::GetF64(); }
 
 tpp::CharExpression::CharExpression(const SourceLocation &location, const std::string &value) : Expression(location), Value(value[0]) {}
 
-tpp::TypePtr tpp::CharExpression::GetType() const { return Type::Get("i8"); }
+tpp::TypePtr tpp::CharExpression::GetType() const { return Type::GetI8(); }
 
 tpp::StringExpression::StringExpression(const SourceLocation &location, const std::string &value) : Expression(location), Value(value) {}
 
-tpp::TypePtr tpp::StringExpression::GetType() const { return Type::GetArray(Type::Get("i8")); }
+tpp::TypePtr tpp::StringExpression::GetType() const { return Type::GetArray(Type::GetI8()); }
 
 tpp::VarArgsExpression::VarArgsExpression(const SourceLocation &location) : Expression(location) {}
 
@@ -119,7 +113,6 @@ std::ostream &tpp::operator<<(std::ostream &out, const ExprPtr &ptr)
 {
 	if (!ptr) return out << "<null>";
 
-	if (auto p = std::dynamic_pointer_cast<DefStructExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<DefFunctionExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<DefVariableExpression>(ptr)) return out << *p;
 	if (auto p = std::dynamic_pointer_cast<ReturnExpression>(ptr)) return out << *p;
@@ -157,25 +150,6 @@ static std::string replace(const std::string &str, const std::function<bool(char
 	for (auto &c : cpy)
 		if (filter(c)) c = d;
 	return cpy;
-}
-
-std::ostream &tpp::operator<<(std::ostream &out, const DefStructExpression &e)
-{
-	out << "def " << e.MName << " {";
-	if (e.Fields.empty()) return out << '}';
-
-	++depth;
-	auto spaces = get_spaces();
-
-	for (size_t i = 0; i < e.Fields.size(); ++i)
-	{
-		if (i > 0) out << ',';
-		out << std::endl << spaces << e.Fields[i];
-	}
-
-	--depth;
-	spaces = get_spaces();
-	return out << std::endl << spaces << '}';
 }
 
 std::ostream &tpp::operator<<(std::ostream &out, const DefFunctionExpression &e)

@@ -1,10 +1,10 @@
 include "../std/std.t++"
 
-def vec2 { f64 x = 0, f64 y = 0 }
-def person { [i8] name, f64 age }
-def test { vec2 a, person b, f64 c, [[i8]] d }
+struct vec2 { f64 x = 0, f64 y = 0 }
+struct person { [i8] name, f64 age }
+struct test { vec2 a, person b, f64 c, [[i8]] d }
 
-def i32 main([[i8]] args) = (
+def i32 main(i32 argc, [[i8]] argv) = (
 
     def vec2 a = {0.5,  4.5}
     def vec2 b = {1.0, -3.0}
@@ -22,7 +22,7 @@ def i32 main([[i8]] args) = (
 
     printf("%s & %s\n", d.string, e.string)
 
-    def test nested = {{0.1, -1.0}, {"felix", 18.45}, 1.0, args}
+    def test nested = {{0.1, -1.0}, {"felix", 18.45}, 1.0, argv}
 
     printf("nested = %s\n", nested.string)
 
